@@ -409,6 +409,17 @@ class FlowController<T> extends ChangeNotifier {
     }
   }
 
+  /// Restarts the flow from the beginning.
+  ///
+  /// This clears all state, data, and history, returning the controller
+  /// to the same state as when it was first created.
+  /// used when process finished successfully
+  ///
+  void restart(){
+    _data.clear();
+   start();
+  }
+
   /// Resets the flow to its initial state.
   ///
   /// This clears all state, data, and history, returning the controller
