@@ -14,7 +14,7 @@ import 'core_types.dart';
 ///
 /// Example usage:
 /// ```dart
-/// final controller = FlowController<MyStepEnum, KeyObject>(
+/// final controller = FlowController<MyStepEnum>(
 ///   steps: [
 ///     FlowStep(
 ///       step: MyStepEnum.init,
@@ -70,7 +70,7 @@ class FlowController<T> extends ChangeNotifier {
   ///
   /// The [steps] list must not be empty.
   FlowController({required this.steps})
-    : assert(steps.isNotEmpty, 'Steps list cannot be empty');
+      : assert(steps.isNotEmpty, 'Steps list cannot be empty');
 
   // State Getters
 
@@ -116,33 +116,59 @@ class FlowController<T> extends ChangeNotifier {
 
   // Data Management
 
-  /// Stores a value in the flow's data map.
+  /// Stores a value in the flow's data map with flexible key types.
   ///
-  /// The [key] should be unique within the flow, and [value] can be any object.
-  /// This data persists throughout the flow execution but is cleared on reset.
+  /// The [key] can be any Object (String, enum, int, custom objects, etc.)
+  /// and [value] can be any object. This data persists throughout the flow
+  /// execution but is cleared on reset.
   ///
   /// Example:
   /// ```dart
+  /// // String keys
   /// controller.setData('userEmail', 'user@example.com');
   /// controller.setData('preferences', {'theme': 'dark'});
-  /// controller.setData('user-model', userDataModel);
-  /// controller.setData('form-001', formularyModel);
-  /// controller.setData(EnumKey.formulary, formularyModel);
+  ///
+  /// // Enum keys
+  /// enum PaymentKeys { amount, method, cardInfo }
+  /// controller.setData(PaymentKeys.amount, 25.0);
+  /// controller.setData(PaymentKeys.cardInfo, CreditCard(...));
+  ///
+  /// // Integer keys
+  /// controller.setData(42, 'some value');
+  ///
+  /// // Custom object keys
+  /// controller.setData(UserModel(), userDataModel);
   /// ```
   void setData<K extends Object, V>(K key, V value) {
     _data[key] = value;
   }
 
-  /// Retrieves a value from the flow's data map.
+  /// Retrieves a value from the flow's data map with type safety.
   ///
-  /// Returns the stored value for [key], or null if the key doesn't exist.
+  /// Returns the stored value for [key] cast to type [V], or null if the key
+  /// doesn't exist or the value can't be cast to [V].
   ///
   /// Example:
   /// ```dart
+  /// // Type-safe retrieval
+  /// String? email = controller.getData<String, String>('userEmail');
+  /// double? amount = controller.getData<PaymentKeys, double>(PaymentKeys.amount);
+  /// CreditCard? card = controller.getData<PaymentKeys, CreditCard>(PaymentKeys.cardInfo);
+  ///
+  /// // Inference often works
   /// String? email = controller.getData('userEmail');
-  /// Map<String, dynamic>? prefs = controller.getData('preferences');
   /// ```
   V? getData<K extends Object, V>(K key) => _data[key] as V?;
+
+  /// Convenience method for string keys (backward compatibility).
+  ///
+  /// This method maintains compatibility with existing code that uses string keys.
+  void setString(String key, dynamic value) => setData(key, value);
+
+  /// Convenience method for string keys (backward compatibility).
+  ///
+  /// This method maintains compatibility with existing code that uses string keys.
+  dynamic getString(String key) => getData(key);
 
   /// Returns an unmodifiable copy of all stored data.
   ///

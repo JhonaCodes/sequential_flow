@@ -33,7 +33,7 @@ enum ActionOnPressBack {
   block,
 
   /// Execute a custom back action defined in the step.
-  /// **Requires** [SequentialFlow.onPressBack] builder to be provided.
+  /// This will trigger the onBackPressed callback in SequentialFlow.
   custom,
 
   /// Navigate to a specific step index.
@@ -116,7 +116,7 @@ class FlowStep<T> {
     this.goToStepIndex,
     this.customBackAction,
   }) : assert(
-         progressValue >= 0.0 && progressValue <= 1.0,
-         'progressValue must be between 0.0 and 1.0',
-       );
+  progressValue >= 0.0 && progressValue <= 1.0,
+  'progressValue must be between 0.0 and 1.0',
+  );
 }
