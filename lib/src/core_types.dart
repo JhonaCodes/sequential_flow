@@ -116,7 +116,7 @@ class FlowStep<T> {
     this.goToStepIndex,
     this.customBackAction,
   }) : assert(
-  progressValue >= 0.0 && progressValue <= 1.0,
-  'progressValue must be between 0.0 and 1.0',
-  );
+         progressValue >= 0.0 && progressValue <= 1.0,
+         'progressValue must be between 0.0 and 1.0',
+       );
 }

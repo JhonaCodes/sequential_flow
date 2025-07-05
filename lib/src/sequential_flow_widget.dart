@@ -115,12 +115,12 @@ class SequentialFlow<T> extends StatefulWidget {
   ///
   /// If not provided, a simple Text widget showing the error will be displayed.
   final Widget Function(
-      T step,
-      String name,
-      Object error,
-      StackTrace stack,
-      FlowController<T> controller,
-      )?
+    T step,
+    String name,
+    Object error,
+    StackTrace stack,
+    FlowController<T> controller,
+  )?
   onStepError;
 
   /// Builder for the completion state UI.
@@ -130,11 +130,11 @@ class SequentialFlow<T> extends StatefulWidget {
   ///
   /// If not provided, a simple Text widget indicating completion will be displayed.
   final Widget Function(
-      T step,
-      String name,
-      double progress,
-      FlowController<T> controller,
-      )?
+    T step,
+    String name,
+    double progress,
+    FlowController<T> controller,
+  )?
   onStepFinish;
 
   /// Builder for the cancelled state UI.
@@ -336,21 +336,21 @@ class _FlowMainContent<T> extends StatelessWidget {
 
   /// Builder for error state UI.
   final Widget Function(
-      T step,
-      String name,
-      Object error,
-      StackTrace stack,
-      FlowController<T> controller,
-      )?
+    T step,
+    String name,
+    Object error,
+    StackTrace stack,
+    FlowController<T> controller,
+  )?
   onStepError;
 
   /// Builder for completion state UI.
   final Widget Function(
-      T step,
-      String name,
-      double progress,
-      FlowController<T> controller,
-      )?
+    T step,
+    String name,
+    double progress,
+    FlowController<T> controller,
+  )?
   onStepFinish;
 
   /// Builder for loading state UI.
@@ -384,10 +384,10 @@ class _FlowMainContent<T> extends StatelessWidget {
     // Display cancellation UI when the flow has been cancelled
     if (controller.isCancelled && controller.currentStep != null) {
       return onStepCancel?.call(
-        controller.currentStep as T,
-        controller.currentStepName,
-        controller,
-      ) ??
+            controller.currentStep as T,
+            controller.currentStepName,
+            controller,
+          ) ??
           Text('Cancelled: ${controller.currentStepName}');
     }
 
@@ -395,12 +395,12 @@ class _FlowMainContent<T> extends StatelessWidget {
     // Display error UI when a step has failed
     if (controller.hasError && controller.currentStep != null) {
       return onStepError?.call(
-        controller.currentStep as T,
-        controller.currentStepName,
-        controller.error!,
-        controller.stackTrace!,
-        controller,
-      ) ??
+            controller.currentStep as T,
+            controller.currentStepName,
+            controller.error!,
+            controller.stackTrace!,
+            controller,
+          ) ??
           Text('Error: ${controller.error}');
     }
 
@@ -415,11 +415,11 @@ class _FlowMainContent<T> extends StatelessWidget {
     // Display completion UI when all steps have finished successfully
     if (controller.isCompleted && controller.currentStep != null) {
       return onStepFinish?.call(
-        controller.currentStep as T,
-        controller.currentStepName,
-        controller.currentProgress,
-        controller,
-      ) ??
+            controller.currentStep as T,
+            controller.currentStepName,
+            controller.currentProgress,
+            controller,
+          ) ??
           Text('Completed: ${controller.currentStepName}');
     }
 
@@ -427,10 +427,10 @@ class _FlowMainContent<T> extends StatelessWidget {
     // Display loading UI when a step is currently executing
     if (controller.isLoading && controller.currentStep != null) {
       return onStepLoading?.call(
-        controller.currentStep as T,
-        controller.currentStepName,
-        controller.currentProgress,
-      ) ??
+            controller.currentStep as T,
+            controller.currentStepName,
+            controller.currentProgress,
+          ) ??
           Text(controller.currentStepName);
     }
 

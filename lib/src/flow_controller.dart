@@ -71,7 +71,7 @@ class FlowController<T> extends ChangeNotifier {
   ///
   /// The [steps] list must not be empty.
   FlowController({required this.steps})
-      : assert(steps.isNotEmpty, 'Steps list cannot be empty');
+    : assert(steps.isNotEmpty, 'Steps list cannot be empty');
 
   // State Getters
 
