@@ -7,7 +7,7 @@ import 'flow_controller.dart';
 ///
 /// This function is called before the step's main logic ([OnStepCallback])
 /// is executed and can be used for initialization or UI updates.
-typedef OnStartStep = void Function();
+typedef OnStartStep = Future<void> Function(FlowController controller);
 
 /// Defines the behavior when the back button is pressed during flow execution.
 ///

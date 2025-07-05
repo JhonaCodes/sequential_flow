@@ -36,7 +36,7 @@ void main() {
             step: OnboardingStep.welcome,
             name: 'Welcome Screen',
             progressValue: 0.16,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('welcome');
               await Future.delayed(const Duration(milliseconds: 50));
             },
@@ -46,7 +46,7 @@ void main() {
             step: OnboardingStep.permissions,
             name: 'Request Permissions',
             progressValue: 0.33,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('permissions');
               // Simulate permission request
               await Future.delayed(const Duration(milliseconds: 100));
@@ -82,7 +82,7 @@ void main() {
             step: OnboardingStep.userProfile,
             name: 'Create Profile',
             progressValue: 0.5,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('profile');
               await Future.delayed(const Duration(milliseconds: 75));
             },
@@ -117,7 +117,7 @@ void main() {
             step: OnboardingStep.preferences,
             name: 'Set Preferences',
             progressValue: 0.67,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('preferences');
               await Future.delayed(const Duration(milliseconds: 50));
             },
@@ -127,7 +127,7 @@ void main() {
             step: OnboardingStep.tutorial,
             name: 'Quick Tutorial',
             progressValue: 0.83,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('tutorial');
               await Future.delayed(const Duration(milliseconds: 100));
             },
@@ -137,7 +137,7 @@ void main() {
             step: OnboardingStep.completion,
             name: 'Setup Complete',
             progressValue: 1.0,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('completion');
               await Future.delayed(const Duration(milliseconds: 25));
             },
@@ -187,7 +187,7 @@ void main() {
                   ],
                 ),
               ),
-              onPressBack: (controller) {
+              onBackPressed: (controller) {
                 final currentStep =
                     controller.steps[controller.currentStepIndex];
                 if (currentStep.actionOnPressBack == ActionOnPressBack.custom) {

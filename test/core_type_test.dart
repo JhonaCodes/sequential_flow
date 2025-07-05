@@ -50,7 +50,7 @@ void main() {
         step: TestStepType.initialization,
         name: 'Test Step',
         progressValue: 0.5,
-        onStepCallback: () async {
+        onStepCallback: (controller) async {
           callbackExecuted = true;
         },
       );
@@ -70,10 +70,10 @@ void main() {
         step: TestStepType.processing,
         name: 'Processing Step',
         progressValue: 0.8,
-        onStepCallback: () async {
+        onStepCallback: (controller) async {
           callbackExecuted = true;
         },
-        onStartStep: () {
+        onStartStep: (controller) async {
           onStartExecuted = true;
         },
         actionOnPressBack: ActionOnPressBack.goToPreviousStep,
@@ -101,7 +101,7 @@ void main() {
           step: TestStepType.initialization,
           name: 'Test',
           progressValue: -0.1,
-          onStepCallback: () async {},
+          onStepCallback: (controller) async {},
         ),
         throwsAssertionError,
       );
@@ -111,7 +111,7 @@ void main() {
           step: TestStepType.initialization,
           name: 'Test',
           progressValue: 1.1,
-          onStepCallback: () async {},
+          onStepCallback: (controller) async {},
         ),
         throwsAssertionError,
       );
@@ -123,7 +123,7 @@ void main() {
           step: TestStepType.initialization,
           name: 'Test',
           progressValue: 0.0,
-          onStepCallback: () async {},
+          onStepCallback: (controller) async {},
         ),
         returnsNormally,
       );
@@ -133,7 +133,7 @@ void main() {
           step: TestStepType.initialization,
           name: 'Test',
           progressValue: 1.0,
-          onStepCallback: () async {},
+          onStepCallback: (controller) async {},
         ),
         returnsNormally,
       );
@@ -144,12 +144,12 @@ void main() {
         step: TestStepType.initialization,
         name: 'Test Step',
         progressValue: 0.5,
-        onStepCallback: () async {
+        onStepCallback: (controller) async {
           callbackExecuted = true;
         },
       );
 
-      await step.onStepCallback();
+      await step.onStepCallback(FlowController(steps: [])); // Pass a dummy controller
       expect(callbackExecuted, isTrue);
     });
 
@@ -158,13 +158,13 @@ void main() {
         step: TestStepType.initialization,
         name: 'Test Step',
         progressValue: 0.5,
-        onStepCallback: () async {},
-        onStartStep: () {
+        onStepCallback: (controller) async {},
+        onStartStep: (controller) async {
           onStartExecuted = true;
         },
       );
 
-      step.onStartStep!();
+      step.onStartStep!(FlowController(steps: [])); // Pass a dummy controller
       expect(onStartExecuted, isTrue);
     });
 
@@ -173,7 +173,7 @@ void main() {
         step: TestStepType.validation,
         name: 'Validation Step',
         progressValue: 0.3,
-        onStepCallback: () async {},
+        onStepCallback: (controller) async {},
         requiresConfirmation: (controller) => const Text('Please confirm'),
       );
 
@@ -188,7 +188,7 @@ void main() {
         step: TestStepType.processing,
         name: 'Processing Step',
         progressValue: 0.7,
-        onStepCallback: () async {},
+        onStepCallback: (controller) async {},
         actionOnPressBack: ActionOnPressBack.custom,
         customBackAction: (controller) async {
           customActionExecuted = true;
@@ -202,7 +202,7 @@ void main() {
             step: TestStepType.initialization,
             name: 'Dummy Step',
             progressValue: 0.0,
-            onStepCallback: () async {},
+            onStepCallback: (controller) async {},
           ),
         ],
       );
@@ -216,14 +216,14 @@ void main() {
         step: 'initialization',
         name: 'String Step',
         progressValue: 0.25,
-        onStepCallback: () async {},
+        onStepCallback: (controller) async {},
       );
 
       final intStep = FlowStep<int>(
         step: 1,
         name: 'Integer Step',
         progressValue: 0.75,
-        onStepCallback: () async {},
+        onStepCallback: (controller) async {},
       );
 
       expect(stringStep.step, equals('initialization'));
@@ -236,13 +236,13 @@ void main() {
           step: TestStepType.initialization,
           name: 'Start',
           progressValue: 0.0,
-          onStepCallback: () async {},
+          onStepCallback: (controller) async {},
         ),
         FlowStep<TestStepType>(
           step: TestStepType.completion,
           name: 'End',
           progressValue: 1.0,
-          onStepCallback: () async {},
+          onStepCallback: (controller) async {},
         ),
       ];
 
@@ -255,7 +255,7 @@ void main() {
         step: TestStepType.validation,
         name: 'Immutable Step',
         progressValue: 0.6,
-        onStepCallback: () async {},
+        onStepCallback: (controller) async {},
         actionOnPressBack: ActionOnPressBack.goToPreviousStep,
       );
 

@@ -28,8 +28,8 @@ void main() {
           step: TestStepType.step1,
           name: 'Step 1',
           progressValue: 0.2,
-          onStartStep: () => startCallbacks.add('step1_start'),
-          onStepCallback: () async {
+          onStartStep: (controller) async => startCallbacks.add('step1_start'),
+          onStepCallback: (controller) async {
             if (errorAtStep == 0) throw Exception('Error in step 1');
             executionOrder.add('step1');
             await Future.delayed(const Duration(milliseconds: 10));
@@ -44,8 +44,8 @@ void main() {
           step: TestStepType.step2,
           name: 'Step 2',
           progressValue: 0.4,
-          onStartStep: () => startCallbacks.add('step2_start'),
-          onStepCallback: () async {
+          onStartStep: (controller) async => startCallbacks.add('step2_start'),
+          onStepCallback: (controller) async {
             if (errorAtStep == 1) throw Exception('Error in step 2');
             executionOrder.add('step2');
             await Future.delayed(const Duration(milliseconds: 10));
@@ -60,8 +60,8 @@ void main() {
           step: TestStepType.step3,
           name: 'Step 3',
           progressValue: 0.6,
-          onStartStep: () => startCallbacks.add('step3_start'),
-          onStepCallback: () async {
+          onStartStep: (controller) async => startCallbacks.add('step3_start'),
+          onStepCallback: (controller) async {
             if (errorAtStep == 2) throw Exception('Error in step 3');
             executionOrder.add('step3');
             await Future.delayed(const Duration(milliseconds: 10));
@@ -79,8 +79,8 @@ void main() {
           step: TestStepType.step4,
           name: 'Step 4',
           progressValue: 0.8,
-          onStartStep: () => startCallbacks.add('step4_start'),
-          onStepCallback: () async {
+          onStartStep: (controller) async => startCallbacks.add('step4_start'),
+          onStepCallback: (controller) async {
             if (errorAtStep == 3) throw Exception('Error in step 4');
             executionOrder.add('step4');
             if (shouldThrowError) throw Exception('Test error in step 4');
@@ -97,8 +97,8 @@ void main() {
           step: TestStepType.step5,
           name: 'Step 5',
           progressValue: 1.0,
-          onStartStep: () => startCallbacks.add('step5_start'),
-          onStepCallback: () async {
+          onStartStep: (controller) async => startCallbacks.add('step5_start'),
+          onStepCallback: (controller) async {
             if (errorAtStep == 4) throw Exception('Error in step 5');
             executionOrder.add('step5');
             await Future.delayed(const Duration(milliseconds: 10));
@@ -252,7 +252,7 @@ void main() {
         await Future.wait([future1, future2]);
 
         // Should only execute once
-        expect(executionOrder, equals(['step1', 'step2', 'step4', 'step5']));
+        expect(executionOrder, equals(['step1', 'step2', 'step3', 'step4', 'step5']));
       });
 
       test('should jump to specific step on continue', () async {
@@ -297,14 +297,15 @@ void main() {
         // Clear the error condition and retry
         executionOrder.clear();
         startCallbacks.clear();
-        controller =
-            createTestController(); // Create new controller without error
 
         controller.retry();
-        // Wait a bit for retry to complete
-        await Future.delayed(const Duration(milliseconds: 100));
 
         expect(controller.hasError, isFalse);
+        expect(controller.isCompleted, isTrue);
+        expect(
+          executionOrder,
+          equals(['step2', 'step3', 'step4', 'step5']),
+        );
       });
 
       test('should reset to initial state', () async {
@@ -340,7 +341,7 @@ void main() {
             step: TestStepType.step1,
             name: 'Step 1',
             progressValue: 0.5,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('step1');
             },
             actionOnPressBack: ActionOnPressBack.block,
@@ -349,7 +350,7 @@ void main() {
             step: TestStepType.step2,
             name: 'Step 2',
             progressValue: 1.0,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('step2');
             },
             actionOnPressBack: ActionOnPressBack.goToPreviousStep,
@@ -373,7 +374,7 @@ void main() {
             step: TestStepType.step1,
             name: 'Cancel Step',
             progressValue: 0.5,
-            onStepCallback: () async {},
+            onStepCallback: (controller) async {},
             actionOnPressBack: ActionOnPressBack.cancelFlow,
           ),
         ];
@@ -392,7 +393,7 @@ void main() {
             step: TestStepType.step1,
             name: 'Block Step',
             progressValue: 0.5,
-            onStepCallback: () async {},
+            onStepCallback: (controller) async {},
             actionOnPressBack: ActionOnPressBack.block,
           ),
         ];
@@ -409,7 +410,7 @@ void main() {
             step: TestStepType.step1,
             name: 'Save Exit Step',
             progressValue: 1.0,
-            onStepCallback: () async {},
+            onStepCallback: (controller) async {},
             actionOnPressBack: ActionOnPressBack.saveAndExit,
           ),
         ];
@@ -427,7 +428,7 @@ void main() {
             step: TestStepType.step1,
             name: 'Custom Step',
             progressValue: 1.0,
-            onStepCallback: () async {},
+            onStepCallback: (controller) async {},
             actionOnPressBack: ActionOnPressBack.custom,
             requiresConfirmation: (controller) =>
                 const Text('Confirm Custom Action'),
@@ -452,7 +453,7 @@ void main() {
             step: TestStepType.step1,
             name: 'Step 1',
             progressValue: 0.33,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('step1');
             },
           ),
@@ -460,7 +461,7 @@ void main() {
             step: TestStepType.step2,
             name: 'Step 2',
             progressValue: 0.66,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('step2');
             },
           ),
@@ -468,7 +469,7 @@ void main() {
             step: TestStepType.step3,
             name: 'Specific Step',
             progressValue: 1.0,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               executionOrder.add('step3');
             },
             actionOnPressBack: ActionOnPressBack.goToSpecificStep,
