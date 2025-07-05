@@ -61,7 +61,13 @@ import 'flow_controller.dart';
 ///     ],
 ///   ),
 ///   onBackPressed: (controller) {
-///     // This executes only when back button is actually pressed
+///     // Option 1: Return a widget to show it as part of the flow
+///     return CancelConfirmationWidget(
+///       onContinue: () => controller.hideBackWidget(),
+///       onCancel: () => Navigator.of(context).pop(),
+///     );
+///
+///     // Option 2: Execute logic and return null to continue with normal flow
 ///     showDialog(
 ///       context: context,
 ///       builder: (context) => AlertDialog(
@@ -82,6 +88,7 @@ import 'flow_controller.dart';
 ///         ],
 ///       ),
 ///     );
+///     return null;
 ///   },
 /// )
 /// ```
@@ -142,20 +149,31 @@ class SequentialFlow<T> extends StatefulWidget {
   /// Callback executed when back button is pressed on a step with [ActionOnPressBack.custom].
   ///
   /// This callback is only executed when the user actually presses the back button,
-  /// not during widget rebuilds. Use this to show dialogs, execute custom logic,
-  /// or perform any side effects needed when the user attempts to go back.
+  /// not during widget rebuilds. It can either return a widget to display or null
+  /// to execute logic without changing the UI.
   ///
-  /// This callback does NOT return a widget - it's purely for executing logic.
-  /// If you need to show UI, use showDialog, Navigator.push, or similar methods.
+  /// **Return Options:**
+  /// - `Widget`: The returned widget will be displayed in place of the normal flow content.
+  ///   Use `controller.hideBackWidget()` in the widget to return to the normal flow.
+  /// - `null`: Only execute logic (like showing dialogs) and continue with the normal flow.
   ///
-  /// Example:
+  /// Example returning a widget:
+  /// ```dart
+  /// onBackPressed: (controller) {
+  ///   return CancelConfirmationWidget(
+  ///     onContinue: () => controller.hideBackWidget(),
+  ///     onCancel: () => Navigator.of(context).pop(),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// Example executing logic only:
   /// ```dart
   /// onBackPressed: (controller) {
   ///   showDialog(
   ///     context: context,
   ///     builder: (context) => AlertDialog(
   ///       title: Text('Cancel?'),
-  ///       content: Text('Are you sure you want to cancel?'),
   ///       actions: [
   ///         TextButton(
   ///           onPressed: () => Navigator.pop(context),
@@ -171,9 +189,10 @@ class SequentialFlow<T> extends StatefulWidget {
   ///       ],
   ///     ),
   ///   );
+  ///   return null; // Continue with normal flow
   /// }
   /// ```
-  final void Function(FlowController<T> controller)? onBackPressed;
+  final Widget? Function(FlowController<T> controller)? onBackPressed;
 
   /// Whether to automatically start the flow when the widget is initialized.
   ///
@@ -242,7 +261,14 @@ class SequentialFlowState<T> extends State<SequentialFlow<T>> {
 
         // Handle custom back press - execute callback only when back is actually pressed
         if (currentStep.actionOnPressBack == ActionOnPressBack.custom) {
-          widget.onBackPressed?.call(controller);
+          if (widget.onBackPressed != null) {
+            final backWidget = widget.onBackPressed!(controller);
+            if (backWidget != null) {
+              // Show the custom widget by updating controller state
+              controller.showBackWidget();
+            }
+            // If null, the callback executed logic (like showDialog) but didn't return a widget
+          }
           return;
         }
 
@@ -257,6 +283,7 @@ class SequentialFlowState<T> extends State<SequentialFlow<T>> {
         builder: (context, child) => _FlowMainContent<T>(
           controller: controller,
           steps: widget.steps,
+          onBackPressed: widget.onBackPressed,
           onStepCancel: widget.onStepCancel,
           onStepError: widget.onStepError,
           onStepFinish: widget.onStepFinish,
@@ -277,6 +304,7 @@ class SequentialFlowState<T> extends State<SequentialFlow<T>> {
 ///
 /// This widget is responsible for determining which UI to display based on
 /// the current state of the [FlowController]. It handles all possible states:
+/// - Custom back widget display
 /// - Cancelled state
 /// - Error state
 /// - Waiting for confirmation
@@ -298,6 +326,9 @@ class _FlowMainContent<T> extends StatelessWidget {
 
   /// The list of flow steps for reference.
   final List<FlowStep<T>> steps;
+
+  /// Custom back press handler builder.
+  final Widget? Function(FlowController<T> controller)? onBackPressed;
 
   /// Builder for cancelled state UI.
   final Widget Function(T step, String name, FlowController<T> controller)?
@@ -331,6 +362,7 @@ class _FlowMainContent<T> extends StatelessWidget {
   const _FlowMainContent({
     required this.controller,
     required this.steps,
+    this.onBackPressed,
     this.onStepCancel,
     this.onStepError,
     this.onStepFinish,
@@ -339,6 +371,15 @@ class _FlowMainContent<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // State: Custom Back Widget
+    // Display custom back widget when user pressed back and onBackPressed returned a widget
+    if (controller.isShowingBackWidget && onBackPressed != null) {
+      final backWidget = onBackPressed!(controller);
+      if (backWidget != null) {
+        return backWidget;
+      }
+    }
+
     // State: Cancelled
     // Display cancellation UI when the flow has been cancelled
     if (controller.isCancelled && controller.currentStep != null) {

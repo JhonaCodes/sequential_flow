@@ -47,6 +47,7 @@ class FlowController<T> extends ChangeNotifier {
   bool _hasError = false;
   bool _isWaitingConfirmation = false;
   bool _isCancelled = false;
+  bool _showingBackWidget = false;
   T? _currentStep;
   String _currentStepName = '';
   double _currentProgress = 0.0;
@@ -90,6 +91,12 @@ class FlowController<T> extends ChangeNotifier {
 
   /// Whether the flow was cancelled by the user.
   bool get isCancelled => _isCancelled;
+
+  /// Whether a custom back widget is currently being shown.
+  ///
+  /// This occurs when a step with [ActionOnPressBack.custom] is pressed
+  /// and the onBackPressed callback returns a widget.
+  bool get isShowingBackWidget => _showingBackWidget;
 
   /// The current step identifier, or null if no step is active.
   T? get currentStep => _currentStep;
@@ -176,6 +183,26 @@ class FlowController<T> extends ChangeNotifier {
   /// data without the ability to modify it.
   Map<Object, dynamic> getAllData() => Map.unmodifiable(_data);
 
+  // Back Widget Management
+
+  /// Shows the custom back widget.
+  ///
+  /// This is called internally when a step with [ActionOnPressBack.custom]
+  /// is pressed and the onBackPressed callback returns a widget.
+  void showBackWidget() {
+    _showingBackWidget = true;
+    notifyListeners();
+  }
+
+  /// Hides the custom back widget and returns to the normal flow.
+  ///
+  /// This should be called from the custom back widget when the user
+  /// chooses to continue with the flow.
+  void hideBackWidget() {
+    _showingBackWidget = false;
+    notifyListeners();
+  }
+
   // Flow Control
 
   /// Starts the flow execution from the beginning.
@@ -195,6 +222,7 @@ class FlowController<T> extends ChangeNotifier {
     _hasError = false;
     _isWaitingConfirmation = false;
     _isCancelled = false;
+    _showingBackWidget = false;
     _error = null;
     _stackTrace = null;
     _currentStepIndex = 0;
@@ -367,6 +395,7 @@ class FlowController<T> extends ChangeNotifier {
     _hasError = false;
     _isCompleted = false;
     _isCancelled = true;
+    _showingBackWidget = false;
     notifyListeners();
   }
 
@@ -392,6 +421,7 @@ class FlowController<T> extends ChangeNotifier {
     _hasError = false;
     _isWaitingConfirmation = false;
     _isCancelled = false;
+    _showingBackWidget = false;
     _currentStep = null;
     _currentStepName = '';
     _currentProgress = 0.0;

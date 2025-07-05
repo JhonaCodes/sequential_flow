@@ -380,7 +380,7 @@ class PaymentFlowWidget extends StatelessWidget {
         ///
         /// Provides a custom cancel dialog for the first step,
         /// demonstrating how to implement custom navigation behavior.
-        onPressBack: (controller) {
+        onBackPressed: (controller) {
           final currentStep = controller.steps[controller.currentStepIndex];
 
           // Handle cancel dialog for the first step
