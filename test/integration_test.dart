@@ -12,13 +12,7 @@ enum OnboardingStep {
   completion,
 }
 
-enum DataMigrationStep {
-  backup,
-  validation,
-  migration,
-  verification,
-  cleanup,
-}
+enum DataMigrationStep { backup, validation, migration, verification, cleanup }
 
 enum PaymentFlowStep {
   selectPayment,
@@ -31,7 +25,9 @@ enum PaymentFlowStep {
 void main() {
   group('Integration Tests - Real Use Cases', () {
     group('User Onboarding Flow', () {
-      testWidgets('should complete full onboarding successfully', (tester) async {
+      testWidgets('should complete full onboarding successfully', (
+        tester,
+      ) async {
         final executionOrder = <String>[];
         final userData = <String, dynamic>{};
 
@@ -59,7 +55,9 @@ void main() {
               controller.setData('permissions_requested', true);
               return AlertDialog(
                 title: const Text('Allow Camera Access?'),
-                content: const Text('This app needs camera access for QR scanning.'),
+                content: const Text(
+                  'This app needs camera access for QR scanning.',
+                ),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -95,7 +93,8 @@ void main() {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
-                      onChanged: (value) => controller.setData('username', value),
+                      onChanged: (value) =>
+                          controller.setData('username', value),
                       decoration: const InputDecoration(hintText: 'Username'),
                     ),
                     TextField(
@@ -122,7 +121,7 @@ void main() {
               executionOrder.add('preferences');
               await Future.delayed(const Duration(milliseconds: 50));
             },
-            actionOnPressBack: ActionOnPressBack.showSaveDialog,
+            actionOnPressBack: ActionOnPressBack.custom,
           ),
           FlowStep<OnboardingStep>(
             step: OnboardingStep.tutorial,
@@ -146,66 +145,79 @@ void main() {
           ),
         ];
 
-        await tester.pumpWidget(MaterialApp(
-          home: SequentialFlow<OnboardingStep>(
-            steps: onboardingSteps,
-            onStepLoading: (step, name, progress) =>
-                Scaffold(
-                  appBar: AppBar(title: Text('Onboarding')),
-                  body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(value: progress),
-                      const SizedBox(height: 16),
-                      Text(name),
-                      Text('${(progress * 100).toInt()}% Complete'),
-                    ],
-                  ),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SequentialFlow<OnboardingStep>(
+              steps: onboardingSteps,
+              onStepLoading: (step, name, progress) => Scaffold(
+                appBar: AppBar(title: Text('Onboarding')),
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(value: progress),
+                    const SizedBox(height: 16),
+                    Text(name),
+                    Text('${(progress * 100).toInt()}% Complete'),
+                  ],
                 ),
-            onStepFinish: (step, name, progress, controller) =>
-                Scaffold(
-                  appBar: AppBar(title: const Text('Welcome!')),
-                  body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.check_circle, size: 64, color: Colors.green),
-                      Text('Welcome, ${controller.getData('username') ?? 'User'}!'),
-                      Text('Email: ${controller.getData('email') ?? 'Not provided'}'),
-                      Text('Camera: ${controller.getData('camera_permission') == true
-                          ? 'Allowed'
-                          : 'Denied'}'),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: const Text('Get Started'),
-                      ),
-                    ],
-                  ),
-                ),
-            onPressBack: (controller) {
-              final currentStep = controller.steps[controller.currentStepIndex];
-              if (currentStep.actionOnPressBack == ActionOnPressBack.showSaveDialog) {
-                return AlertDialog(
-                  title: const Text('Save Progress?'),
-                  content: const Text('You can continue setup later.'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(tester.element(find.byType(AlertDialog))).pop(),
-                      child: const Text('Continue Setup'),
+              ),
+              onStepFinish: (step, name, progress, controller) => Scaffold(
+                appBar: AppBar(title: const Text('Welcome!')),
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      size: 64,
+                      color: Colors.green,
                     ),
-                    TextButton(
-                      onPressed: () {
-                        controller.setData('onboarding_saved', true);
-                        Navigator.of(tester.element(find.byType(AlertDialog))).pop();
-                      },
-                      child: const Text('Save & Exit'),
+                    Text(
+                      'Welcome, ${controller.getData('username') ?? 'User'}!',
+                    ),
+                    Text(
+                      'Email: ${controller.getData('email') ?? 'Not provided'}',
+                    ),
+                    Text(
+                      'Camera: ${controller.getData('camera_permission') == true ? 'Allowed' : 'Denied'}',
+                    ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: const Text('Get Started'),
                     ),
                   ],
-                );
-              }
-              return const SizedBox.shrink();
-            },
+                ),
+              ),
+              onPressBack: (controller) {
+                final currentStep =
+                    controller.steps[controller.currentStepIndex];
+                if (currentStep.actionOnPressBack == ActionOnPressBack.custom) {
+                  return AlertDialog(
+                    title: const Text('Save Progress?'),
+                    content: const Text('You can continue setup later.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(
+                          tester.element(find.byType(AlertDialog)),
+                        ).pop(),
+                        child: const Text('Continue Setup'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          controller.setData('onboarding_saved', true);
+                          Navigator.of(
+                            tester.element(find.byType(AlertDialog)),
+                          ).pop();
+                        },
+                        child: const Text('Save & Exit'),
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ),
-        ));
+        );
 
         // Wait for welcome screen
         await tester.pumpAndSettle();
@@ -221,12 +233,8 @@ void main() {
 
         // Fill profile information
         expect(find.text('Create Profile'), findsOneWidget);
-        await tester.enterText(find
-            .byType(TextField)
-            .first, 'testuser');
-        await tester.enterText(find
-            .byType(TextField)
-            .last, 'test@example.com');
+        await tester.enterText(find.byType(TextField).first, 'testuser');
+        await tester.enterText(find.byType(TextField).last, 'test@example.com');
         await tester.tap(find.text('Create'));
         await tester.pumpAndSettle();
 

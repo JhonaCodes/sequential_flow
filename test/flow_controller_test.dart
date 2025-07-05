@@ -2,13 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sequential_flow/sequential_flow.dart';
 
-enum TestStepType {
-  step1,
-  step2,
-  step3,
-  step4,
-  step5,
-}
+enum TestStepType { step1, step2, step3, step4, step5 }
 
 void main() {
   group('FlowController Tests', () {
@@ -29,79 +23,89 @@ void main() {
       final steps = <FlowStep<TestStepType>>[];
 
       // Step 1
-      steps.add(FlowStep<TestStepType>(
-        step: TestStepType.step1,
-        name: 'Step 1',
-        progressValue: 0.2,
-        onStartStep: () => startCallbacks.add('step1_start'),
-        onStepCallback: () async {
-          if (errorAtStep == 0) throw Exception('Error in step 1');
-          executionOrder.add('step1');
-          await Future.delayed(const Duration(milliseconds: 10));
-        },
-        actionOnPressBack: ActionOnPressBack.block,
-      ));
+      steps.add(
+        FlowStep<TestStepType>(
+          step: TestStepType.step1,
+          name: 'Step 1',
+          progressValue: 0.2,
+          onStartStep: () => startCallbacks.add('step1_start'),
+          onStepCallback: () async {
+            if (errorAtStep == 0) throw Exception('Error in step 1');
+            executionOrder.add('step1');
+            await Future.delayed(const Duration(milliseconds: 10));
+          },
+          actionOnPressBack: ActionOnPressBack.block,
+        ),
+      );
 
       // Step 2
-      steps.add(FlowStep<TestStepType>(
-        step: TestStepType.step2,
-        name: 'Step 2',
-        progressValue: 0.4,
-        onStartStep: () => startCallbacks.add('step2_start'),
-        onStepCallback: () async {
-          if (errorAtStep == 1) throw Exception('Error in step 2');
-          executionOrder.add('step2');
-          await Future.delayed(const Duration(milliseconds: 10));
-        },
-        actionOnPressBack: ActionOnPressBack.goToPreviousStep,
-      ));
+      steps.add(
+        FlowStep<TestStepType>(
+          step: TestStepType.step2,
+          name: 'Step 2',
+          progressValue: 0.4,
+          onStartStep: () => startCallbacks.add('step2_start'),
+          onStepCallback: () async {
+            if (errorAtStep == 1) throw Exception('Error in step 2');
+            executionOrder.add('step2');
+            await Future.delayed(const Duration(milliseconds: 10));
+          },
+          actionOnPressBack: ActionOnPressBack.goToPreviousStep,
+        ),
+      );
 
-      // Step 3 - with confirmation if requested
-      steps.add(FlowStep<TestStepType>(
-        step: TestStepType.step3,
-        name: 'Step 3',
-        progressValue: 0.6,
-        onStartStep: () => startCallbacks.add('step3_start'),
-        onStepCallback: () async {
-          if (errorAtStep == 2) throw Exception('Error in step 3');
-          executionOrder.add('step3');
-          await Future.delayed(const Duration(milliseconds: 10));
-        },
-        actionOnPressBack: ActionOnPressBack.showCancelDialog,
-        requiresConfirmation: includeConfirmationStep
-            ? (controller) => const Text('Confirm step 3')
-            : null,
-      ));
+      // Step 3
+      steps.add(
+        FlowStep<TestStepType>(
+          step: TestStepType.step3,
+          name: 'Step 3',
+          progressValue: 0.6,
+          onStartStep: () => startCallbacks.add('step3_start'),
+          onStepCallback: () async {
+            if (errorAtStep == 2) throw Exception('Error in step 3');
+            executionOrder.add('step3');
+            await Future.delayed(const Duration(milliseconds: 10));
+          },
+          requiresConfirmation: includeConfirmationStep
+              ? (controller) => const Text('Confirm')
+              : null,
+          actionOnPressBack: ActionOnPressBack.block,
+        ),
+      );
 
       // Step 4
-      steps.add(FlowStep<TestStepType>(
-        step: TestStepType.step4,
-        name: 'Step 4',
-        progressValue: 0.8,
-        onStartStep: () => startCallbacks.add('step4_start'),
-        onStepCallback: () async {
-          if (errorAtStep == 3) throw Exception('Error in step 4');
-          executionOrder.add('step4');
-          if (shouldThrowError) throw Exception('Test error in step 4');
-          await Future.delayed(const Duration(milliseconds: 10));
-        },
-        actionOnPressBack: ActionOnPressBack.custom,
-        customBackAction: (controller) async => true,
-      ));
+      steps.add(
+        FlowStep<TestStepType>(
+          step: TestStepType.step4,
+          name: 'Step 4',
+          progressValue: 0.8,
+          onStartStep: () => startCallbacks.add('step4_start'),
+          onStepCallback: () async {
+            if (errorAtStep == 3) throw Exception('Error in step 4');
+            executionOrder.add('step4');
+            if (shouldThrowError) throw Exception('Test error in step 4');
+            await Future.delayed(const Duration(milliseconds: 10));
+          },
+          actionOnPressBack: ActionOnPressBack.custom,
+          customBackAction: (controller) async => true,
+        ),
+      );
 
       // Step 5
-      steps.add(FlowStep<TestStepType>(
-        step: TestStepType.step5,
-        name: 'Step 5',
-        progressValue: 1.0,
-        onStartStep: () => startCallbacks.add('step5_start'),
-        onStepCallback: () async {
-          if (errorAtStep == 4) throw Exception('Error in step 5');
-          executionOrder.add('step5');
-          await Future.delayed(const Duration(milliseconds: 10));
-        },
-        actionOnPressBack: ActionOnPressBack.saveAndExit,
-      ));
+      steps.add(
+        FlowStep<TestStepType>(
+          step: TestStepType.step5,
+          name: 'Step 5',
+          progressValue: 1.0,
+          onStartStep: () => startCallbacks.add('step5_start'),
+          onStepCallback: () async {
+            if (errorAtStep == 4) throw Exception('Error in step 5');
+            executionOrder.add('step5');
+            await Future.delayed(const Duration(milliseconds: 10));
+          },
+          actionOnPressBack: ActionOnPressBack.saveAndExit,
+        ),
+      );
 
       return FlowController<TestStepType>(steps: steps);
     }
@@ -127,7 +131,7 @@ void main() {
 
       test('should throw assertion error with empty steps', () {
         expect(
-              () => FlowController<TestStepType>(steps: []),
+          () => FlowController<TestStepType>(steps: []),
           throwsAssertionError,
         );
       });
@@ -175,8 +179,20 @@ void main() {
         expect(controller.isCompleted, isTrue);
         expect(controller.isLoading, isFalse);
         expect(controller.hasError, isFalse);
-        expect(executionOrder, equals(['step1', 'step2', 'step3', 'step4', 'step5']));
-        expect(startCallbacks, equals(['step1_start', 'step2_start', 'step3_start', 'step4_start', 'step5_start']));
+        expect(
+          executionOrder,
+          equals(['step1', 'step2', 'step3', 'step4', 'step5']),
+        );
+        expect(
+          startCallbacks,
+          equals([
+            'step1_start',
+            'step2_start',
+            'step3_start',
+            'step4_start',
+            'step5_start',
+          ]),
+        );
         expect(controller.currentProgress, equals(1.0));
         expect(controller.currentStep, equals(TestStepType.step5));
       });
@@ -218,7 +234,10 @@ void main() {
 
         expect(controller.isCompleted, isTrue);
         expect(controller.isWaitingConfirmation, isFalse);
-        expect(executionOrder, equals(['step1', 'step2', 'step3', 'step4', 'step5']));
+        expect(
+          executionOrder,
+          equals(['step1', 'step2', 'step3', 'step4', 'step5']),
+        );
       });
 
       test('should ignore start if already loading', () async {
@@ -233,7 +252,10 @@ void main() {
         await Future.wait([future1, future2]);
 
         // Should only execute once
-        expect(executionOrder, equals(['step1', 'step2', 'step3', 'step4', 'step5']));
+        expect(
+          executionOrder,
+          equals(['step1', 'step2', 'step3', 'step4', 'step5']),
+        );
       });
 
       test('should jump to specific step on continue', () async {
@@ -247,7 +269,10 @@ void main() {
         await controller.continueFlow(flowIndex: 3);
 
         expect(controller.isCompleted, isTrue);
-        expect(executionOrder, equals(['step1', 'step2', 'step3', 'step4', 'step5']));
+        expect(
+          executionOrder,
+          equals(['step1', 'step2', 'step3', 'step4', 'step5']),
+        );
       });
     });
 
@@ -275,7 +300,8 @@ void main() {
         // Clear the error condition and retry
         executionOrder.clear();
         startCallbacks.clear();
-        controller = createTestController(); // Create new controller without error
+        controller =
+            createTestController(); // Create new controller without error
 
         controller.retry();
         // Wait a bit for retry to complete
@@ -465,17 +491,20 @@ void main() {
         expect(result2, isNotNull); // Should return a boolean
       });
 
-      test('should handle continueFlow when not waiting for confirmation', () async {
-        controller = createTestController();
-        await controller.start();
+      test(
+        'should handle continueFlow when not waiting for confirmation',
+        () async {
+          controller = createTestController();
+          await controller.start();
 
-        expect(controller.isCompleted, isTrue);
-        expect(controller.isWaitingConfirmation, isFalse);
+          expect(controller.isCompleted, isTrue);
+          expect(controller.isWaitingConfirmation, isFalse);
 
-        // Should ignore the call
-        await controller.continueFlow();
-        expect(controller.isCompleted, isTrue);
-      });
+          // Should ignore the call
+          await controller.continueFlow();
+          expect(controller.isCompleted, isTrue);
+        },
+      );
 
       test('should handle retry when not in error state', () {
         controller = createTestController();

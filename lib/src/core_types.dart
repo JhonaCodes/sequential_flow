@@ -26,14 +26,6 @@ enum ActionOnPressBack {
   /// Immediately cancel the entire flow without confirmation.
   cancelFlow,
 
-  /// Show a confirmation dialog before canceling the flow.
-  /// **Requires** [SequentialFlow.onPressBack] builder to be provided.
-  showCancelDialog,
-
-  /// Show a dialog with save/exit options.
-  /// **Requires** [SequentialFlow.onPressBack] builder to be provided.
-  showSaveDialog,
-
   /// Save current progress and exit the flow.
   saveAndExit,
 
@@ -123,6 +115,8 @@ class FlowStep<T> {
     this.actionOnPressBack = ActionOnPressBack.block,
     this.goToStepIndex,
     this.customBackAction,
-  }) : assert(progressValue >= 0.0 && progressValue <= 1.0,
-  'progressValue must be between 0.0 and 1.0');
+  }) : assert(
+         progressValue >= 0.0 && progressValue <= 1.0,
+         'progressValue must be between 0.0 and 1.0',
+       );
 }

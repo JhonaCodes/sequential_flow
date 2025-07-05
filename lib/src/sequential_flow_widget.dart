@@ -83,7 +83,14 @@ class SequentialFlow<T> extends StatefulWidget {
   /// The controller can be used to retry the flow or access other flow data.
   ///
   /// If not provided, a simple Text widget showing the error will be displayed.
-  final Widget Function(T step, String name, Object error, StackTrace stack, FlowController<T> controller)? onStepError;
+  final Widget Function(
+    T step,
+    String name,
+    Object error,
+    StackTrace stack,
+    FlowController<T> controller,
+  )?
+  onStepError;
 
   /// Builder for the completion state UI.
   ///
@@ -91,7 +98,13 @@ class SequentialFlow<T> extends StatefulWidget {
   /// last step identifier, step name, final progress value, and controller.
   ///
   /// If not provided, a simple Text widget indicating completion will be displayed.
-  final Widget Function(T step, String name, double progress, FlowController<T> controller)? onStepFinish;
+  final Widget Function(
+    T step,
+    String name,
+    double progress,
+    FlowController<T> controller,
+  )?
+  onStepFinish;
 
   /// Builder for the cancelled state UI.
   ///
@@ -99,7 +112,8 @@ class SequentialFlow<T> extends StatefulWidget {
   /// step identifier, step name, and controller.
   ///
   /// If not provided, a simple Text widget indicating cancellation will be displayed.
-  final Widget Function(T step, String name, FlowController<T> controller)? onStepCancel;
+  final Widget Function(T step, String name, FlowController<T> controller)?
+  onStepCancel;
 
   /// **Required** builder for custom back button handling.
   ///
@@ -157,7 +171,7 @@ class SequentialFlow<T> extends StatefulWidget {
   ///   return YourCustomBackWidget(controller: controller);
   /// }
   /// ```
-  final Widget Function(FlowController<T> controller)? onPressBack;
+  final Widget? Function(FlowController<T> controller)? onPressBack;
 
   /// Whether to automatically start the flow when the widget is initialized.
   ///
@@ -204,33 +218,10 @@ class SequentialFlowState<T> extends State<SequentialFlow<T>> {
     super.initState();
     controller = FlowController<T>(steps: widget.steps);
 
-    // Validate that onPressBack is provided when needed
-    _validateBackHandlers();
-
     if (widget.autoStart) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         controller.start();
       });
-    }
-  }
-
-  /// Validates that onPressBack is provided when steps require it.
-  ///
-  /// Throws a [FlutterError] if any step requires the onPressBack builder
-  /// but it wasn't provided.
-  void _validateBackHandlers() {
-    final needsBackHandler = widget.steps.any((step) =>
-    step.actionOnPressBack == ActionOnPressBack.showCancelDialog ||
-        step.actionOnPressBack == ActionOnPressBack.showSaveDialog ||
-        step.actionOnPressBack == ActionOnPressBack.custom);
-
-    if (needsBackHandler && widget.onPressBack == null) {
-      throw FlutterError(
-        'onPressBack builder is required when using ActionOnPressBack.showCancelDialog, '
-            'ActionOnPressBack.showSaveDialog, or ActionOnPressBack.custom.\n'
-            'Please provide an onPressBack builder that handles these cases.\n'
-            'No default dialogs are provided - you must implement your own UI.',
-      );
     }
   }
 
@@ -248,9 +239,7 @@ class SequentialFlowState<T> extends State<SequentialFlow<T>> {
         if (currentStep == null) return;
 
         // For dialog-based actions and custom actions, the UI handling is done in the builder
-        if (currentStep.actionOnPressBack == ActionOnPressBack.showCancelDialog ||
-            currentStep.actionOnPressBack == ActionOnPressBack.showSaveDialog ||
-            currentStep.actionOnPressBack == ActionOnPressBack.custom) {
+        if (currentStep.actionOnPressBack == ActionOnPressBack.custom) {
           // These are handled by the onPressBack builder - no action needed here
           return;
         }
@@ -282,8 +271,6 @@ class SequentialFlowState<T> extends State<SequentialFlow<T>> {
   }
 }
 
-
-
 /// Internal widget that renders the main content based on flow state.
 ///
 /// This widget is responsible for determining which UI to display based on
@@ -309,16 +296,30 @@ class _FlowMainContent<T> extends StatelessWidget {
   final List<FlowStep<T>> steps;
 
   /// Custom back press handler builder.
-  final Widget Function(FlowController<T> controller)? onPressBack;
+  final Widget? Function(FlowController<T> controller)? onPressBack;
 
   /// Builder for cancelled state UI.
-  final Widget Function(T step, String name, FlowController<T> controller)? onStepCancel;
+  final Widget Function(T step, String name, FlowController<T> controller)?
+  onStepCancel;
 
   /// Builder for error state UI.
-  final Widget Function(T step, String name, Object error, StackTrace stack, FlowController<T> controller)? onStepError;
+  final Widget Function(
+    T step,
+    String name,
+    Object error,
+    StackTrace stack,
+    FlowController<T> controller,
+  )?
+  onStepError;
 
   /// Builder for completion state UI.
-  final Widget Function(T step, String name, double progress, FlowController<T> controller)? onStepFinish;
+  final Widget Function(
+    T step,
+    String name,
+    double progress,
+    FlowController<T> controller,
+  )?
+  onStepFinish;
 
   /// Builder for loading state UI.
   final Widget Function(T step, String name, double progress)? onStepLoading;
@@ -341,10 +342,16 @@ class _FlowMainContent<T> extends StatelessWidget {
     // Handle custom back press scenarios
     if (onPressBack != null && controller.currentStepIndex < steps.length) {
       final currentStep = steps[controller.currentStepIndex];
-      if (currentStep.actionOnPressBack == ActionOnPressBack.custom ||
-          currentStep.actionOnPressBack == ActionOnPressBack.showCancelDialog ||
-          currentStep.actionOnPressBack == ActionOnPressBack.showSaveDialog) {
-        return onPressBack!(controller);
+      if (currentStep.actionOnPressBack == ActionOnPressBack.custom) {
+        final onPressBackData = onPressBack!(controller);
+
+        if (onPressBackData is Widget) {
+          return onPressBackData;
+        }
+
+        if (onPressBackData == null) {
+          onPressBack?.call(controller);
+        }
       }
     }
 
@@ -352,22 +359,24 @@ class _FlowMainContent<T> extends StatelessWidget {
     // Display cancellation UI when the flow has been cancelled
     if (controller.isCancelled && controller.currentStep != null) {
       return onStepCancel?.call(
-        controller.currentStep as T,
-        controller.currentStepName,
-        controller,
-      ) ?? Text('Cancelled: ${controller.currentStepName}');
+            controller.currentStep as T,
+            controller.currentStepName,
+            controller,
+          ) ??
+          Text('Cancelled: ${controller.currentStepName}');
     }
 
     // State: Error
     // Display error UI when a step has failed
     if (controller.hasError && controller.currentStep != null) {
       return onStepError?.call(
-        controller.currentStep as T,
-        controller.currentStepName,
-        controller.error!,
-        controller.stackTrace!,
-        controller,
-      ) ?? Text('Error: ${controller.error}');
+            controller.currentStep as T,
+            controller.currentStepName,
+            controller.error!,
+            controller.stackTrace!,
+            controller,
+          ) ??
+          Text('Error: ${controller.error}');
     }
 
     // State: Waiting for Confirmation
@@ -381,21 +390,23 @@ class _FlowMainContent<T> extends StatelessWidget {
     // Display completion UI when all steps have finished successfully
     if (controller.isCompleted && controller.currentStep != null) {
       return onStepFinish?.call(
-        controller.currentStep as T,
-        controller.currentStepName,
-        controller.currentProgress,
-        controller,
-      ) ?? Text('Completed: ${controller.currentStepName}');
+            controller.currentStep as T,
+            controller.currentStepName,
+            controller.currentProgress,
+            controller,
+          ) ??
+          Text('Completed: ${controller.currentStepName}');
     }
 
     // State: Loading
     // Display loading UI when a step is currently executing
     if (controller.isLoading && controller.currentStep != null) {
       return onStepLoading?.call(
-        controller.currentStep as T,
-        controller.currentStepName,
-        controller.currentProgress,
-      ) ?? Text(controller.currentStepName);
+            controller.currentStep as T,
+            controller.currentStepName,
+            controller.currentProgress,
+          ) ??
+          Text(controller.currentStepName);
     }
 
     // Default: Empty state

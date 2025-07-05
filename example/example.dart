@@ -1,4 +1,5 @@
 library;
+
 /// Payment Flow Example for Sequential Flow
 ///
 /// This example demonstrates how to create a complete payment processing flow
@@ -106,7 +107,7 @@ class PaymentFlowWidget extends StatelessWidget {
               ),
             ),
             // Show cancel dialog if user tries to go back
-            actionOnPressBack: ActionOnPressBack.showCancelDialog,
+            actionOnPressBack: ActionOnPressBack.custom,
           ),
 
           // Step 2: Payment Method Selection
@@ -158,7 +159,9 @@ class PaymentFlowWidget extends StatelessWidget {
             requiresConfirmation: (controller) {
               final method = controller.getData('method');
               return AlertDialog(
-                title: Text('Enter ${method == 'card' ? 'Card' : 'Bank'} Details'),
+                title: Text(
+                  'Enter ${method == 'card' ? 'Card' : 'Bank'} Details',
+                ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -169,7 +172,8 @@ class PaymentFlowWidget extends StatelessWidget {
                           labelText: 'Card Number',
                           hintText: '1234 5678 9012 3456',
                         ),
-                        onChanged: (value) => controller.setData('cardNumber', value),
+                        onChanged: (value) =>
+                            controller.setData('cardNumber', value),
                       ),
                       const SizedBox(height: 10),
                       TextField(
@@ -185,7 +189,8 @@ class PaymentFlowWidget extends StatelessWidget {
                           labelText: 'Account Number',
                           hintText: '1234567890',
                         ),
-                        onChanged: (value) => controller.setData('accountNumber', value),
+                        onChanged: (value) =>
+                            controller.setData('accountNumber', value),
                       ),
                       const SizedBox(height: 10),
                       TextField(
@@ -193,7 +198,8 @@ class PaymentFlowWidget extends StatelessWidget {
                           labelText: 'Routing Number',
                           hintText: '987654321',
                         ),
-                        onChanged: (value) => controller.setData('routingNumber', value),
+                        onChanged: (value) =>
+                            controller.setData('routingNumber', value),
                       ),
                     ],
                   ],
@@ -252,10 +258,7 @@ class PaymentFlowWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(
-                value: progress,
-                strokeWidth: 6,
-              ),
+              CircularProgressIndicator(value: progress, strokeWidth: 6),
               const SizedBox(height: 24),
               Text(
                 name,
@@ -267,10 +270,7 @@ class PaymentFlowWidget extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 '${(progress * 100).toInt()}% Complete',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               // Special message during payment processing
               if (step == PaymentStep.processing) ...[
@@ -294,11 +294,7 @@ class PaymentFlowWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.check_circle,
-                size: 80,
-                color: Colors.green,
-              ),
+              const Icon(Icons.check_circle, size: 80, color: Colors.green),
               const SizedBox(height: 24),
               const Text(
                 'Payment Successful!',
@@ -323,12 +319,12 @@ class PaymentFlowWidget extends StatelessWidget {
                 onPressed: () => Navigator.of(context).pop(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
                 ),
-                child: const Text(
-                  'Done',
-                  style: TextStyle(fontSize: 16),
-                ),
+                child: const Text('Done', style: TextStyle(fontSize: 16)),
               ),
             ],
           ),
@@ -343,11 +339,7 @@ class PaymentFlowWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 80,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error_outline, size: 80, color: Colors.red),
               const SizedBox(height: 24),
               Text(
                 'Error in $name',
@@ -392,10 +384,12 @@ class PaymentFlowWidget extends StatelessWidget {
           final currentStep = controller.steps[controller.currentStepIndex];
 
           // Handle cancel dialog for the first step
-          if (currentStep.actionOnPressBack == ActionOnPressBack.showCancelDialog) {
+          if (currentStep.actionOnPressBack == ActionOnPressBack.custom) {
             return AlertDialog(
               title: const Text('Cancel Payment?'),
-              content: const Text('Are you sure you want to cancel this payment?'),
+              content: const Text(
+                'Are you sure you want to cancel this payment?',
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -442,25 +436,16 @@ class PaymentFlowDemo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sequential Flow Demo'),
-      ),
+      appBar: AppBar(title: const Text('Sequential Flow Demo')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.payment,
-              size: 80,
-              color: Colors.blue,
-            ),
+            const Icon(Icons.payment, size: 80, color: Colors.blue),
             const SizedBox(height: 24),
             const Text(
               'Payment Flow Example',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             const Padding(
@@ -468,10 +453,7 @@ class PaymentFlowDemo extends StatelessWidget {
               child: Text(
                 'Demonstrates a complete payment process using Sequential Flow library',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ),
             const SizedBox(height: 32),
@@ -485,7 +467,10 @@ class PaymentFlowDemo extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
               ),
               child: const Text(
                 'Start Payment Flow',

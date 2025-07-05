@@ -3,25 +3,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sequential_flow/sequential_flow.dart';
 
 // Test enum for step types
-enum TestStepType {
-  initialization,
-  validation,
-  processing,
-  completion,
-}
+enum TestStepType { initialization, validation, processing, completion }
 
 void main() {
   group('ActionOnPressBack Enum Tests', () {
     test('should have all expected values', () {
-      expect(ActionOnPressBack.values, hasLength(8));
-      expect(ActionOnPressBack.values, contains(ActionOnPressBack.goToPreviousStep));
+      expect(ActionOnPressBack.values, hasLength(6));
+      expect(
+        ActionOnPressBack.values,
+        contains(ActionOnPressBack.goToPreviousStep),
+      );
       expect(ActionOnPressBack.values, contains(ActionOnPressBack.cancelFlow));
-      expect(ActionOnPressBack.values, contains(ActionOnPressBack.showCancelDialog));
-      expect(ActionOnPressBack.values, contains(ActionOnPressBack.showSaveDialog));
       expect(ActionOnPressBack.values, contains(ActionOnPressBack.saveAndExit));
       expect(ActionOnPressBack.values, contains(ActionOnPressBack.block));
       expect(ActionOnPressBack.values, contains(ActionOnPressBack.custom));
-      expect(ActionOnPressBack.values, contains(ActionOnPressBack.goToSpecificStep));
+      expect(
+        ActionOnPressBack.values,
+        contains(ActionOnPressBack.goToSpecificStep),
+      );
     });
 
     test('should be comparable', () {
@@ -30,10 +29,10 @@ void main() {
     });
 
     test('should have consistent string representation', () {
-      expect(ActionOnPressBack.goToPreviousStep.toString(),
-          equals('ActionOnPressBack.goToPreviousStep'));
-      expect(ActionOnPressBack.showCancelDialog.toString(),
-          equals('ActionOnPressBack.showCancelDialog'));
+      expect(
+        ActionOnPressBack.goToPreviousStep.toString(),
+        equals('ActionOnPressBack.goToPreviousStep'),
+      );
     });
   });
 
@@ -86,7 +85,10 @@ void main() {
       expect(step.step, equals(TestStepType.processing));
       expect(step.name, equals('Processing Step'));
       expect(step.progressValue, equals(0.8));
-      expect(step.actionOnPressBack, equals(ActionOnPressBack.goToPreviousStep));
+      expect(
+        step.actionOnPressBack,
+        equals(ActionOnPressBack.goToPreviousStep),
+      );
       expect(step.onStartStep, isNotNull);
       expect(step.requiresConfirmation, isNotNull);
       expect(step.goToStepIndex, equals(2));
@@ -95,7 +97,7 @@ void main() {
 
     test('should validate progress value range', () {
       expect(
-            () => FlowStep<TestStepType>(
+        () => FlowStep<TestStepType>(
           step: TestStepType.initialization,
           name: 'Test',
           progressValue: -0.1,
@@ -105,7 +107,7 @@ void main() {
       );
 
       expect(
-            () => FlowStep<TestStepType>(
+        () => FlowStep<TestStepType>(
           step: TestStepType.initialization,
           name: 'Test',
           progressValue: 1.1,
@@ -117,7 +119,7 @@ void main() {
 
     test('should accept valid progress values at boundaries', () {
       expect(
-            () => FlowStep<TestStepType>(
+        () => FlowStep<TestStepType>(
           step: TestStepType.initialization,
           name: 'Test',
           progressValue: 0.0,
@@ -127,7 +129,7 @@ void main() {
       );
 
       expect(
-            () => FlowStep<TestStepType>(
+        () => FlowStep<TestStepType>(
           step: TestStepType.initialization,
           name: 'Test',
           progressValue: 1.0,
@@ -194,9 +196,15 @@ void main() {
         },
       );
 
-      // This would normally be called with an actual controller
-      // For testing purposes, we pass null (the function should handle it)
-      final result = await step.customBackAction!(null as dynamic);
+      final controller = FlowController<TestStepType>(steps: [
+        FlowStep<TestStepType>(
+          step: TestStepType.initialization,
+          name: 'Dummy Step',
+          progressValue: 0.0,
+          onStepCallback: () async {},
+        ),
+      ]);
+      final result = await step.customBackAction!(controller);
       expect(customActionExecuted, isTrue);
       expect(result, isFalse);
     });
@@ -253,7 +261,10 @@ void main() {
       expect(step.step, equals(TestStepType.validation));
       expect(step.name, equals('Immutable Step'));
       expect(step.progressValue, equals(0.6));
-      expect(step.actionOnPressBack, equals(ActionOnPressBack.goToPreviousStep));
+      expect(
+        step.actionOnPressBack,
+        equals(ActionOnPressBack.goToPreviousStep),
+      );
     });
   });
 

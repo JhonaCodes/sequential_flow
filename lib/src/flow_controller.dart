@@ -14,7 +14,7 @@ import 'core_types.dart';
 ///
 /// Example usage:
 /// ```dart
-/// final controller = FlowController<MyStepEnum>(
+/// final controller = FlowController<MyStepEnum, KeyObject>(
 ///   steps: [
 ///     FlowStep(
 ///       step: MyStepEnum.init,
@@ -58,7 +58,7 @@ class FlowController<T> extends ChangeNotifier {
   ///
   /// This map stores arbitrary data that can be shared between steps.
   /// Data is automatically cleared when the flow is reset.
-  final Map<String, dynamic> _data = {};
+  final Map<Object, dynamic> _data = {};
 
   /// Navigation history for back button functionality.
   ///
@@ -70,7 +70,7 @@ class FlowController<T> extends ChangeNotifier {
   ///
   /// The [steps] list must not be empty.
   FlowController({required this.steps})
-      : assert(steps.isNotEmpty, 'Steps list cannot be empty');
+    : assert(steps.isNotEmpty, 'Steps list cannot be empty');
 
   // State Getters
 
@@ -125,8 +125,11 @@ class FlowController<T> extends ChangeNotifier {
   /// ```dart
   /// controller.setData('userEmail', 'user@example.com');
   /// controller.setData('preferences', {'theme': 'dark'});
+  /// controller.setData('user-model', userDataModel);
+  /// controller.setData('form-001', formularyModel);
+  /// controller.setData(EnumKey.formulary, formularyModel);
   /// ```
-  void setData(String key, dynamic value) {
+  void setData<K extends Object, V>(K key, V value) {
     _data[key] = value;
   }
 
@@ -139,13 +142,13 @@ class FlowController<T> extends ChangeNotifier {
   /// String? email = controller.getData('userEmail');
   /// Map<String, dynamic>? prefs = controller.getData('preferences');
   /// ```
-  dynamic getData(String key) => _data[key];
+  V? getData<K extends Object, V>(K key) => _data[key] as V?;
 
   /// Returns an unmodifiable copy of all stored data.
   ///
   /// This is useful for debugging or when you need to access all
   /// data without the ability to modify it.
-  Map<String, dynamic> getAllData() => Map.unmodifiable(_data);
+  Map<Object, dynamic> getAllData() => Map.unmodifiable(_data);
 
   // Flow Control
 
@@ -202,7 +205,6 @@ class FlowController<T> extends ChangeNotifier {
       _isLoading = false;
       _isCompleted = true;
       notifyListeners();
-
     } catch (e, stack) {
       _error = e;
       _stackTrace = stack;
@@ -249,7 +251,6 @@ class FlowController<T> extends ChangeNotifier {
       }
 
       await _processSteps();
-
     } catch (e, stack) {
       _error = e;
       _stackTrace = stack;
@@ -269,8 +270,6 @@ class FlowController<T> extends ChangeNotifier {
   /// The behavior depends on the current step's [FlowStep.actionOnPressBack] setting:
   /// - [ActionOnPressBack.goToPreviousStep]: Navigate to previous step
   /// - [ActionOnPressBack.cancelFlow]: Cancel the flow immediately
-  /// - [ActionOnPressBack.showCancelDialog]: Return false (dialog handled by widget)
-  /// - [ActionOnPressBack.showSaveDialog]: Return false (dialog handled by widget)
   /// - [ActionOnPressBack.saveAndExit]: Return true (allow exit)
   /// - [ActionOnPressBack.block]: Return false (prevent exit)
   /// - [ActionOnPressBack.custom]: Execute custom action
@@ -286,12 +285,6 @@ class FlowController<T> extends ChangeNotifier {
 
       case ActionOnPressBack.cancelFlow:
         cancelFlow();
-        return false;
-
-      case ActionOnPressBack.showCancelDialog:
-        return false;
-
-      case ActionOnPressBack.showSaveDialog:
         return false;
 
       case ActionOnPressBack.saveAndExit:

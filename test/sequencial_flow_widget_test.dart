@@ -2,13 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sequential_flow/sequential_flow.dart';
 
-enum TestStepType {
-  step1,
-  step2,
-  step3,
-  errorStep,
-  confirmationStep,
-}
+enum TestStepType { step1, step2, step3, errorStep, confirmationStep }
 
 void main() {
   group('SequentialFlow Widget Tests', () {
@@ -45,7 +39,8 @@ void main() {
             if (includeError) throw Exception('Test error');
             await Future.delayed(const Duration(milliseconds: 10));
           },
-          actionOnPressBack: customBackAction ?? ActionOnPressBack.goToPreviousStep,
+          actionOnPressBack:
+              customBackAction ?? ActionOnPressBack.goToPreviousStep,
         ),
         FlowStep<TestStepType>(
           step: TestStepType.step3,
@@ -57,15 +52,15 @@ void main() {
           },
           requiresConfirmation: includeConfirmation
               ? (controller) => AlertDialog(
-            title: const Text('Confirm'),
-            content: const Text('Are you sure?'),
-            actions: [
-              TextButton(
-                onPressed: () => controller.continueFlow(),
-                child: const Text('Yes'),
-              ),
-            ],
-          )
+                  title: const Text('Confirm'),
+                  content: const Text('Are you sure?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => controller.continueFlow(),
+                      child: const Text('Yes'),
+                    ),
+                  ],
+                )
               : null,
           actionOnPressBack: ActionOnPressBack.saveAndExit,
         ),
@@ -76,9 +71,23 @@ void main() {
       List<FlowStep<TestStepType>>? steps,
       bool autoStart = true,
       Widget Function(TestStepType, String, double)? onStepLoading,
-      Widget Function(TestStepType, String, Object, StackTrace, FlowController<TestStepType>)? onStepError,
-      Widget Function(TestStepType, String, double, FlowController<TestStepType>)? onStepFinish,
-      Widget Function(TestStepType, String, FlowController<TestStepType>)? onStepCancel,
+      Widget Function(
+        TestStepType,
+        String,
+        Object,
+        StackTrace,
+        FlowController<TestStepType>,
+      )?
+      onStepError,
+      Widget Function(
+        TestStepType,
+        String,
+        double,
+        FlowController<TestStepType>,
+      )?
+      onStepFinish,
+      Widget Function(TestStepType, String, FlowController<TestStepType>)?
+      onStepCancel,
       Widget Function(FlowController<TestStepType>)? onPressBack,
     }) {
       return MaterialApp(
@@ -86,30 +95,38 @@ void main() {
           body: SequentialFlow<TestStepType>(
             steps: steps ?? createBasicSteps(),
             autoStart: autoStart,
-            onStepLoading: onStepLoading ?? (step, name, progress) {
-              uiCallbacks.add('loading_${step.name}_$progress');
-              return Text('Loading: $name ($progress)');
-            },
-            onStepError: onStepError ?? (step, name, error, stack, controller) {
-              uiCallbacks.add('error_${step.name}');
-              return Column(
-                children: [
-                  Text('Error in $name: $error'),
-                  ElevatedButton(
-                    onPressed: () => controller.retry(),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              );
-            },
-            onStepFinish: onStepFinish ?? (step, name, progress, controller) {
-              uiCallbacks.add('finish_${step.name}');
-              return Text('Completed: $name');
-            },
-            onStepCancel: onStepCancel ?? (step, name, controller) {
-              uiCallbacks.add('cancel_${step.name}');
-              return Text('Cancelled: $name');
-            },
+            onStepLoading:
+                onStepLoading ??
+                (step, name, progress) {
+                  uiCallbacks.add('loading_${step.name}_$progress');
+                  return Text('Loading: $name ($progress)');
+                },
+            onStepError:
+                onStepError ??
+                (step, name, error, stack, controller) {
+                  uiCallbacks.add('error_${step.name}');
+                  return Column(
+                    children: [
+                      Text('Error in $name: $error'),
+                      ElevatedButton(
+                        onPressed: () => controller.retry(),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  );
+                },
+            onStepFinish:
+                onStepFinish ??
+                (step, name, progress, controller) {
+                  uiCallbacks.add('finish_${step.name}');
+                  return Text('Completed: $name');
+                },
+            onStepCancel:
+                onStepCancel ??
+                (step, name, controller) {
+                  uiCallbacks.add('cancel_${step.name}');
+                  return Text('Cancelled: $name');
+                },
             onPressBack: onPressBack,
           ),
         ),
@@ -117,14 +134,18 @@ void main() {
     }
 
     group('Widget Creation and Basic Functionality', () {
-      testWidgets('should create widget with required parameters', (tester) async {
+      testWidgets('should create widget with required parameters', (
+        tester,
+      ) async {
         await tester.pumpWidget(createTestWidget());
         expect(find.byType(SequentialFlow<TestStepType>), findsOneWidget);
       });
 
-      testWidgets('should throw assertion error with empty steps', (tester) async {
+      testWidgets('should throw assertion error with empty steps', (
+        tester,
+      ) async {
         expect(
-              () => SequentialFlow<TestStepType>(steps: []),
+          () => SequentialFlow<TestStepType>(steps: []),
           throwsAssertionError,
         );
       });
@@ -139,7 +160,9 @@ void main() {
         expect(find.text('Completed: Step 3'), findsOneWidget);
       });
 
-      testWidgets('should not auto-start when autoStart is false', (tester) async {
+      testWidgets('should not auto-start when autoStart is false', (
+        tester,
+      ) async {
         await tester.pumpWidget(createTestWidget(autoStart: false));
         await tester.pumpAndSettle();
 
@@ -172,10 +195,12 @@ void main() {
         expect(find.text('Completed: Long Step'), findsOneWidget);
       });
 
-      testWidgets('should display error state and handle retry', (tester) async {
-        await tester.pumpWidget(createTestWidget(
-          steps: createBasicSteps(includeError: true),
-        ));
+      testWidgets('should display error state and handle retry', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          createTestWidget(steps: createBasicSteps(includeError: true)),
+        );
 
         // Wait for error to occur
         await tester.pumpAndSettle();
@@ -213,7 +238,7 @@ void main() {
         await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
           'flutter/navigation',
           null,
-              (data) {},
+          (data) {},
         );
 
         await tester.pumpAndSettle();
@@ -223,9 +248,9 @@ void main() {
       });
 
       testWidgets('should handle confirmation step', (tester) async {
-        await tester.pumpWidget(createTestWidget(
-          steps: createBasicSteps(includeConfirmation: true),
-        ));
+        await tester.pumpWidget(
+          createTestWidget(steps: createBasicSteps(includeConfirmation: true)),
+        );
 
         // Wait for confirmation dialog
         await tester.pumpAndSettle();
@@ -243,24 +268,28 @@ void main() {
     });
 
     group('Back Navigation Handling', () {
-      testWidgets('should validate required onPressBack for dialog actions', (tester) async {
+      testWidgets('should validate required onPressBack for dialog actions', (
+        tester,
+      ) async {
         final steps = [
           FlowStep<TestStepType>(
             step: TestStepType.step1,
             name: 'Dialog Step',
             progressValue: 1.0,
             onStepCallback: () async {},
-            actionOnPressBack: ActionOnPressBack.showCancelDialog,
+            actionOnPressBack: ActionOnPressBack.custom,
           ),
         ];
 
         expect(
-              () => tester.pumpWidget(createTestWidget(steps: steps)),
+          () => tester.pumpWidget(createTestWidget(steps: steps)),
           throwsFlutterError,
         );
       });
 
-      testWidgets('should validate required onPressBack for custom actions', (tester) async {
+      testWidgets('should validate required onPressBack for custom actions', (
+        tester,
+      ) async {
         final steps = [
           FlowStep<TestStepType>(
             step: TestStepType.step1,
@@ -272,7 +301,7 @@ void main() {
         ];
 
         expect(
-              () => tester.pumpWidget(createTestWidget(steps: steps)),
+          () => tester.pumpWidget(createTestWidget(steps: steps)),
           throwsFlutterError,
         );
       });
@@ -289,13 +318,15 @@ void main() {
           ),
         ];
 
-        await tester.pumpWidget(createTestWidget(
-          steps: steps,
-          onPressBack: (controller) {
-            customBackCalled = true;
-            return const Text('Custom Back Widget');
-          },
-        ));
+        await tester.pumpWidget(
+          createTestWidget(
+            steps: steps,
+            onPressBack: (controller) {
+              customBackCalled = true;
+              return const Text('Custom Back Widget');
+            },
+          ),
+        );
 
         await tester.pumpAndSettle();
 
@@ -311,25 +342,27 @@ void main() {
             name: 'Cancel Dialog Step',
             progressValue: 1.0,
             onStepCallback: () async {},
-            actionOnPressBack: ActionOnPressBack.showCancelDialog,
+            actionOnPressBack: ActionOnPressBack.custom,
           ),
         ];
 
-        await tester.pumpWidget(createTestWidget(
-          steps: steps,
-          onPressBack: (controller) {
-            cancelDialogShown = true;
-            return AlertDialog(
-              title: const Text('Cancel?'),
-              actions: [
-                TextButton(
-                  onPressed: () => controller.cancelFlow(),
-                  child: const Text('Cancel Flow'),
-                ),
-              ],
-            );
-          },
-        ));
+        await tester.pumpWidget(
+          createTestWidget(
+            steps: steps,
+            onPressBack: (controller) {
+              cancelDialogShown = true;
+              return AlertDialog(
+                title: const Text('Cancel?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => controller.cancelFlow(),
+                    child: const Text('Cancel Flow'),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
 
         await tester.pumpAndSettle();
 
@@ -345,25 +378,24 @@ void main() {
             name: 'Save Dialog Step',
             progressValue: 1.0,
             onStepCallback: () async {},
-            actionOnPressBack: ActionOnPressBack.showSaveDialog,
+            actionOnPressBack: ActionOnPressBack.custom,
           ),
         ];
 
-        await tester.pumpWidget(createTestWidget(
-          steps: steps,
-          onPressBack: (controller) {
-            saveDialogShown = true;
-            return AlertDialog(
-              title: const Text('Save & Exit?'),
-              actions: [
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('Save'),
-                ),
-              ],
-            );
-          },
-        ));
+        await tester.pumpWidget(
+          createTestWidget(
+            steps: steps,
+            onPressBack: (controller) {
+              saveDialogShown = true;
+              return AlertDialog(
+                title: const Text('Save & Exit?'),
+                actions: [
+                  TextButton(onPressed: () {}, child: const Text('Save')),
+                ],
+              );
+            },
+          ),
+        );
 
         await tester.pumpAndSettle();
 
@@ -389,7 +421,7 @@ void main() {
         await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
           'flutter/navigation',
           null,
-              (data) {},
+          (data) {},
         );
 
         await tester.pumpAndSettle();
@@ -400,98 +432,121 @@ void main() {
     });
 
     group('Default Widget Fallbacks', () {
-      testWidgets('should show default loading widget when no builder provided', (tester) async {
-        await tester.pumpWidget(MaterialApp(
-          home: SequentialFlow<TestStepType>(
-            steps: [
-              FlowStep<TestStepType>(
-                step: TestStepType.step1,
-                name: 'Default Loading',
-                progressValue: 1.0,
-                onStepCallback: () async {
-                  await Future.delayed(const Duration(milliseconds: 50));
-                },
+      testWidgets(
+        'should show default loading widget when no builder provided',
+        (tester) async {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: SequentialFlow<TestStepType>(
+                steps: [
+                  FlowStep<TestStepType>(
+                    step: TestStepType.step1,
+                    name: 'Default Loading',
+                    progressValue: 1.0,
+                    onStepCallback: () async {
+                      await Future.delayed(const Duration(milliseconds: 50));
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
+          );
+
+          // Should show default text
+          expect(find.text('Default Loading'), findsOneWidget);
+
+          await tester.pumpAndSettle();
+        },
+      );
+
+      testWidgets('should show default error widget when no builder provided', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: SequentialFlow<TestStepType>(
+              steps: [
+                FlowStep<TestStepType>(
+                  step: TestStepType.step1,
+                  name: 'Error Step',
+                  progressValue: 1.0,
+                  onStepCallback: () async {
+                    throw Exception('Default error');
+                  },
+                ),
+              ],
+            ),
           ),
-        ));
-
-        // Should show default text
-        expect(find.text('Default Loading'), findsOneWidget);
-
-        await tester.pumpAndSettle();
-      });
-
-      testWidgets('should show default error widget when no builder provided', (tester) async {
-        await tester.pumpWidget(MaterialApp(
-          home: SequentialFlow<TestStepType>(
-            steps: [
-              FlowStep<TestStepType>(
-                step: TestStepType.step1,
-                name: 'Error Step',
-                progressValue: 1.0,
-                onStepCallback: () async {
-                  throw Exception('Default error');
-                },
-              ),
-            ],
-          ),
-        ));
-
-        await tester.pumpAndSettle();
-
-        expect(find.textContaining('Error: Exception: Default error'), findsOneWidget);
-      });
-
-      testWidgets('should show default completion widget when no builder provided', (tester) async {
-        await tester.pumpWidget(MaterialApp(
-          home: SequentialFlow<TestStepType>(
-            steps: [
-              FlowStep<TestStepType>(
-                step: TestStepType.step1,
-                name: 'Default Complete',
-                progressValue: 1.0,
-                onStepCallback: () async {},
-              ),
-            ],
-          ),
-        ));
-
-        await tester.pumpAndSettle();
-
-        expect(find.text('Completed: Default Complete'), findsOneWidget);
-      });
-
-      testWidgets('should show default cancelled widget when no builder provided', (tester) async {
-        await tester.pumpWidget(MaterialApp(
-          home: SequentialFlow<TestStepType>(
-            steps: [
-              FlowStep<TestStepType>(
-                step: TestStepType.step1,
-                name: 'Default Cancel',
-                progressValue: 1.0,
-                onStepCallback: () async {
-                  await Future.delayed(const Duration(milliseconds: 50));
-                },
-                actionOnPressBack: ActionOnPressBack.cancelFlow,
-              ),
-            ],
-          ),
-        ));
-
-        // Let the step start, then trigger cancellation through controller
-        await tester.pump();
-
-        // Find the SequentialFlow widget and access its controller
-        final sequentialFlowState = tester.state<SequentialFlowState<TestStepType>>(
-          find.byType(SequentialFlow<TestStepType>),
         );
-        sequentialFlowState.controller.cancelFlow();
 
         await tester.pumpAndSettle();
 
-        expect(find.text('Cancelled: Default Cancel'), findsOneWidget);
+        expect(
+          find.textContaining('Error: Exception: Default error'),
+          findsOneWidget,
+        );
       });
+
+      testWidgets(
+        'should show default completion widget when no builder provided',
+        (tester) async {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: SequentialFlow<TestStepType>(
+                steps: [
+                  FlowStep<TestStepType>(
+                    step: TestStepType.step1,
+                    name: 'Default Complete',
+                    progressValue: 1.0,
+                    onStepCallback: () async {},
+                  ),
+                ],
+              ),
+            ),
+          );
+
+          await tester.pumpAndSettle();
+
+          expect(find.text('Completed: Default Complete'), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'should show default cancelled widget when no builder provided',
+        (tester) async {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: SequentialFlow<TestStepType>(
+                steps: [
+                  FlowStep<TestStepType>(
+                    step: TestStepType.step1,
+                    name: 'Default Cancel',
+                    progressValue: 1.0,
+                    onStepCallback: () async {
+                      await Future.delayed(const Duration(milliseconds: 50));
+                    },
+                    actionOnPressBack: ActionOnPressBack.cancelFlow,
+                  ),
+                ],
+              ),
+            ),
+          );
+
+          // Let the step start, then trigger cancellation through controller
+          await tester.pump();
+
+          // Find the SequentialFlow widget and access its controller
+          final sequentialFlowState = tester
+              .state<SequentialFlowState<TestStepType>>(
+                find.byType(SequentialFlow<TestStepType>),
+              );
+          sequentialFlowState.controller.cancelFlow();
+
+          await tester.pumpAndSettle();
+
+          expect(find.text('Cancelled: Default Cancel'), findsOneWidget);
+        },
+      );
     });
 
     group('Edge Cases and Error Conditions', () {
@@ -584,7 +639,9 @@ void main() {
     });
 
     group('Integration Tests', () {
-      testWidgets('should handle complex flow with all features', (tester) async {
+      testWidgets('should handle complex flow with all features', (
+        tester,
+      ) async {
         final steps = [
           FlowStep<TestStepType>(
             step: TestStepType.step1,
@@ -616,7 +673,7 @@ void main() {
                 ),
               ],
             ),
-            actionOnPressBack: ActionOnPressBack.showCancelDialog,
+            actionOnPressBack: ActionOnPressBack.custom,
           ),
           FlowStep<TestStepType>(
             step: TestStepType.step3,
@@ -629,18 +686,20 @@ void main() {
           ),
         ];
 
-        await tester.pumpWidget(createTestWidget(
-          steps: steps,
-          onPressBack: (controller) => AlertDialog(
-            title: const Text('Really Cancel?'),
-            actions: [
-              TextButton(
-                onPressed: () => controller.cancelFlow(),
-                child: const Text('Yes, Cancel'),
-              ),
-            ],
+        await tester.pumpWidget(
+          createTestWidget(
+            steps: steps,
+            onPressBack: (controller) => AlertDialog(
+              title: const Text('Really Cancel?'),
+              actions: [
+                TextButton(
+                  onPressed: () => controller.cancelFlow(),
+                  child: const Text('Yes, Cancel'),
+                ),
+              ],
+            ),
           ),
-        ));
+        );
 
         // Wait for confirmation dialog
         await tester.pumpAndSettle();
