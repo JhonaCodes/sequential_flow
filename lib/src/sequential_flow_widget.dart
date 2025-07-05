@@ -342,15 +342,12 @@ class _FlowMainContent<T> extends StatelessWidget {
     // Handle custom back press scenarios
     if (onPressBack != null && controller.currentStepIndex < steps.length) {
       final currentStep = steps[controller.currentStepIndex];
+
       if (currentStep.actionOnPressBack == ActionOnPressBack.custom) {
-        final onPressBackData = onPressBack!(controller);
+        final onPressBackResult = onPressBack!(controller);
 
-        if (onPressBackData is Widget) {
-          return onPressBackData;
-        }
-
-        if (onPressBackData == null) {
-          onPressBack?.call(controller);
+        if (onPressBackResult != null) {
+          return onPressBackResult;
         }
       }
     }

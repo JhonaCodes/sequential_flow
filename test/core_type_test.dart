@@ -196,14 +196,16 @@ void main() {
         },
       );
 
-      final controller = FlowController<TestStepType>(steps: [
-        FlowStep<TestStepType>(
-          step: TestStepType.initialization,
-          name: 'Dummy Step',
-          progressValue: 0.0,
-          onStepCallback: () async {},
-        ),
-      ]);
+      final controller = FlowController<TestStepType>(
+        steps: [
+          FlowStep<TestStepType>(
+            step: TestStepType.initialization,
+            name: 'Dummy Step',
+            progressValue: 0.0,
+            onStepCallback: () async {},
+          ),
+        ],
+      );
       final result = await step.customBackAction!(controller);
       expect(customActionExecuted, isTrue);
       expect(result, isFalse);
