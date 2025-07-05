@@ -73,7 +73,7 @@ class PaymentFlowWidget extends StatelessWidget {
             step: PaymentStep.selectAmount,
             name: 'Select Amount',
             progressValue: 0.2,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               // Simulate amount selection processing
               await Future.delayed(const Duration(seconds: 1));
             },
@@ -116,7 +116,7 @@ class PaymentFlowWidget extends StatelessWidget {
             step: PaymentStep.selectMethod,
             name: 'Payment Method',
             progressValue: 0.4,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               await Future.delayed(const Duration(milliseconds: 500));
             },
             requiresConfirmation: (controller) => AlertDialog(
@@ -153,7 +153,7 @@ class PaymentFlowWidget extends StatelessWidget {
             step: PaymentStep.enterDetails,
             name: 'Enter Details',
             progressValue: 0.6,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               await Future.delayed(const Duration(milliseconds: 800));
             },
             requiresConfirmation: (controller) {
@@ -221,7 +221,7 @@ class PaymentFlowWidget extends StatelessWidget {
             step: PaymentStep.processing,
             name: 'Processing Payment',
             progressValue: 0.8,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               // Simulate payment processing time
               await Future.delayed(const Duration(seconds: 3));
 
@@ -241,7 +241,7 @@ class PaymentFlowWidget extends StatelessWidget {
             step: PaymentStep.confirmation,
             name: 'Payment Confirmation',
             progressValue: 1.0,
-            onStepCallback: () async {
+            onStepCallback: (controller) async {
               await Future.delayed(const Duration(milliseconds: 500));
             },
             // Allow exiting after successful payment

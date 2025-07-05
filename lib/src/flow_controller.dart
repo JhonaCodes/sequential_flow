@@ -242,7 +242,7 @@ class FlowController<T> extends ChangeNotifier {
         _currentStepName = step.name;
         _currentProgress = step.progressValue;
 
-        step.onStartStep?.call();
+        step.onStartStep?.call(this);
         notifyListeners();
 
         if (step.requiresConfirmation != null) {
@@ -273,7 +273,7 @@ class FlowController<T> extends ChangeNotifier {
   /// Executes the current step with small delays for UI smoothness.
   Future<void> _executeCurrentStep() async {
     await Future.delayed(const Duration(milliseconds: 100));
-    await steps[_currentStepIndex].onStepCallback();
+    await steps[_currentStepIndex].onStepCallback(this);
     await Future.delayed(const Duration(milliseconds: 200));
   }
 

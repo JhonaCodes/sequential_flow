@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'flow_controller.dart';
 
-/// A callback function that is executed when a step is processed.
-///
-/// This function should contain the main logic for the step and return
-/// a Future that completes when the step is finished.
-typedef OnStepCallback = Future<void> Function();
 
 /// A callback function that is executed when a step starts.
 ///
@@ -68,11 +63,11 @@ class FlowStep<T> {
   final double progressValue;
 
   /// Optional callback executed when the step starts, before the main logic.
-  final OnStartStep? onStartStep;
+  final Future<void> Function(FlowController<T> controller)? onStartStep;
 
   /// Main callback containing the step's business logic.
   /// This function is executed when the step is processed.
-  final OnStepCallback onStepCallback;
+  final Future<void> Function(FlowController<T> controller) onStepCallback;
 
   /// Optional widget builder for confirmation dialogs.
   ///
