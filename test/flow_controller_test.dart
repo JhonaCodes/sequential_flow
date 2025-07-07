@@ -49,10 +49,10 @@ void main() {
             },
           ),
         ];
-        
+
         controller = FlowController<TestStepType>(steps: steps);
         await controller.start();
-        
+
         expect(controller.isCompleted, isTrue);
         expect(controller.isLoading, isFalse);
         expect(executionOrder, equals(['step1', 'step2']));
@@ -69,10 +69,10 @@ void main() {
             },
           ),
         ];
-        
+
         controller = FlowController<TestStepType>(steps: steps);
         await controller.start();
-        
+
         expect(controller.hasError, isTrue);
         expect(controller.isCompleted, isFalse);
         expect(controller.error, isNotNull);
@@ -90,16 +90,16 @@ void main() {
             requiresConfirmation: (controller) => const Text('Confirm?'),
           ),
         ];
-        
+
         controller = FlowController<TestStepType>(steps: steps);
         await controller.start();
-        
+
         expect(controller.isWaitingConfirmation, isTrue);
         expect(executionOrder, isEmpty);
-        
+
         // Continue flow after confirmation
         await controller.continueFlow();
-        
+
         expect(controller.isCompleted, isTrue);
         expect(controller.isWaitingConfirmation, isFalse);
         expect(executionOrder, equals(['confirmed']));
@@ -120,7 +120,10 @@ void main() {
 
         // Test string data
         controller.setData('testKey', 'testValue');
-        expect(controller.getData<String, String>('testKey'), equals('testValue'));
+        expect(
+          controller.getData<String, String>('testKey'),
+          equals('testValue'),
+        );
 
         // Test numeric data
         controller.setData('numberKey', 42);
@@ -132,7 +135,10 @@ void main() {
 
         // Test enum keys
         controller.setData(TestStepType.step1, 'enumValue');
-        expect(controller.getData<TestStepType, String>(TestStepType.step1), equals('enumValue'));
+        expect(
+          controller.getData<TestStepType, String>(TestStepType.step1),
+          equals('enumValue'),
+        );
       });
 
       test('should return null for non-existent keys', () {
@@ -161,7 +167,10 @@ void main() {
         controller = FlowController<TestStepType>(steps: steps);
 
         controller.setData('testKey', 'testValue');
-        expect(controller.getData<String, String>('testKey'), equals('testValue'));
+        expect(
+          controller.getData<String, String>('testKey'),
+          equals('testValue'),
+        );
 
         controller.reset();
         expect(controller.getData<String, String>('testKey'), isNull);
@@ -180,12 +189,12 @@ void main() {
             },
           ),
         ];
-        
+
         controller = FlowController<TestStepType>(steps: steps);
         await controller.start();
-        
+
         controller.cancelFlow();
-        
+
         expect(controller.isCancelled, isTrue);
         expect(controller.isLoading, isFalse);
         expect(controller.isCompleted, isFalse);
@@ -202,19 +211,19 @@ void main() {
             },
           ),
         ];
-        
+
         controller = FlowController<TestStepType>(steps: steps);
         await controller.start();
-        
+
         expect(controller.isCompleted, isTrue);
         expect(executionOrder, equals(['step1']));
-        
+
         executionOrder.clear();
         controller.restart();
-        
+
         // Allow some time for restart to execute
         await Future.delayed(const Duration(milliseconds: 500));
-        
+
         expect(executionOrder, equals(['step1']));
       });
 
@@ -234,15 +243,15 @@ void main() {
             },
           ),
         ];
-        
+
         controller = FlowController<TestStepType>(steps: steps);
         await controller.start();
-        
+
         expect(controller.hasError, isTrue);
-        
+
         // Retry should succeed
         await controller.retry();
-        
+
         expect(controller.hasError, isFalse);
         expect(controller.isCompleted, isTrue);
         expect(executionOrder, equals(['step1']));

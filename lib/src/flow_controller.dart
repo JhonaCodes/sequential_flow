@@ -431,9 +431,9 @@ class FlowController<T> extends ChangeNotifier {
   /// to the same state as when it was first created.
   /// used when process finished successfully
   ///
-  void restart(){
+  void restart() {
     _data.clear();
-   start();
+    start();
   }
 
   /// Resets the flow to its initial state.

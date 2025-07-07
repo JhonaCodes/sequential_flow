@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'flow_controller.dart';
 
-
 /// A callback function that is executed when a step starts.
 ///
 /// This function is called before the step's main logic ([OnStepCallback])

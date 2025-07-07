@@ -29,6 +29,7 @@
 ///   }
 /// }
 /// ```
+library;
 
 import 'package:flutter/material.dart';
 import 'package:sequential_flow/sequential_flow.dart';
@@ -119,7 +120,6 @@ class CompletePaymentFlow extends StatelessWidget {
       ),
       body: SequentialFlow<PaymentStep>(
         steps: [
-
           // ========================================
           // STEP 1: AUTHENTICATION
           // ========================================
@@ -133,9 +133,8 @@ class CompletePaymentFlow extends StatelessWidget {
               // Simulate authentication check
               await Future.delayed(const Duration(milliseconds: 800));
             },
-            requiresConfirmation: (controller) => _AuthenticationWidget(
-              controller: controller,
-            ),
+            requiresConfirmation: (controller) =>
+                _AuthenticationWidget(controller: controller),
             actionOnPressBack: ActionOnPressBack.custom,
           ),
 
@@ -149,9 +148,11 @@ class CompletePaymentFlow extends StatelessWidget {
             name: 'Identity Verification',
             progressValue: 0.25, // 2/8
             onStepCallback: (controller) async {
-              final needsVerification = controller.getData<PaymentDataKeys, bool>(
-                PaymentDataKeys.needsVerification,
-              ) ?? false;
+              final needsVerification =
+                  controller.getData<PaymentDataKeys, bool>(
+                    PaymentDataKeys.needsVerification,
+                  ) ??
+                  false;
 
               if (!needsVerification) {
                 // Skip verification for authenticated users
@@ -163,9 +164,11 @@ class CompletePaymentFlow extends StatelessWidget {
               controller.setData(PaymentDataKeys.isVerified, true);
             },
             requiresConfirmation: (controller) {
-              final needsVerification = controller.getData<PaymentDataKeys, bool>(
-                PaymentDataKeys.needsVerification,
-              ) ?? false;
+              final needsVerification =
+                  controller.getData<PaymentDataKeys, bool>(
+                    PaymentDataKeys.needsVerification,
+                  ) ??
+                  false;
 
               if (!needsVerification) {
                 // Auto-continue if verification not needed
@@ -191,9 +194,8 @@ class CompletePaymentFlow extends StatelessWidget {
             onStepCallback: (controller) async {
               await Future.delayed(const Duration(milliseconds: 600));
             },
-            requiresConfirmation: (controller) => _AmountSelectionWidget(
-              controller: controller,
-            ),
+            requiresConfirmation: (controller) =>
+                _AmountSelectionWidget(controller: controller),
             actionOnPressBack: ActionOnPressBack.custom,
           ),
 
@@ -208,9 +210,8 @@ class CompletePaymentFlow extends StatelessWidget {
             onStepCallback: (controller) async {
               await Future.delayed(const Duration(milliseconds: 500));
             },
-            requiresConfirmation: (controller) => _PaymentMethodWidget(
-              controller: controller,
-            ),
+            requiresConfirmation: (controller) =>
+                _PaymentMethodWidget(controller: controller),
             actionOnPressBack: ActionOnPressBack.goToPreviousStep,
           ),
 
@@ -226,9 +227,8 @@ class CompletePaymentFlow extends StatelessWidget {
             onStepCallback: (controller) async {
               await Future.delayed(const Duration(milliseconds: 800));
             },
-            requiresConfirmation: (controller) => _PaymentDetailsWidget(
-              controller: controller,
-            ),
+            requiresConfirmation: (controller) =>
+                _PaymentDetailsWidget(controller: controller),
             actionOnPressBack: ActionOnPressBack.goToPreviousStep,
           ),
 
@@ -241,23 +241,27 @@ class CompletePaymentFlow extends StatelessWidget {
             name: 'Review & Confirm',
             progressValue: 0.75, // 6/8
             onStepCallback: (controller) async {
-              final termsAccepted = controller.getData<PaymentDataKeys, bool>(
-                PaymentDataKeys.termsAccepted,
-              ) ?? false;
+              final termsAccepted =
+                  controller.getData<PaymentDataKeys, bool>(
+                    PaymentDataKeys.termsAccepted,
+                  ) ??
+                  false;
 
               if (!termsAccepted) {
-                throw Exception('Please accept the terms and conditions to continue.');
+                throw Exception(
+                  'Please accept the terms and conditions to continue.',
+                );
               }
 
               // Generate transaction ID
-              final transactionId = 'TXN${DateTime.now().millisecondsSinceEpoch}';
+              final transactionId =
+                  'TXN${DateTime.now().millisecondsSinceEpoch}';
               controller.setData(PaymentDataKeys.transactionId, transactionId);
 
               await Future.delayed(const Duration(milliseconds: 500));
             },
-            requiresConfirmation: (controller) => _ReviewConfirmWidget(
-              controller: controller,
-            ),
+            requiresConfirmation: (controller) =>
+                _ReviewConfirmWidget(controller: controller),
             actionOnPressBack: ActionOnPressBack.goToPreviousStep,
           ),
 
@@ -292,7 +296,10 @@ class CompletePaymentFlow extends StatelessWidget {
                   processingTime = const Duration(seconds: 4);
               }
 
-              controller.setData(PaymentDataKeys.processingTime, processingTime.inSeconds);
+              controller.setData(
+                PaymentDataKeys.processingTime,
+                processingTime.inSeconds,
+              );
 
               // Simulate processing
               await Future.delayed(processingTime);
@@ -306,7 +313,8 @@ class CompletePaymentFlow extends StatelessWidget {
                   'Payment gateway temporarily unavailable',
                   'Invalid payment details',
                 ];
-                final randomFailure = failures[DateTime.now().millisecond % failures.length];
+                final randomFailure =
+                    failures[DateTime.now().millisecond % failures.length];
                 throw Exception(randomFailure);
               }
             },
@@ -332,26 +340,21 @@ class CompletePaymentFlow extends StatelessWidget {
         // ========================================
         // CUSTOM UI BUILDERS
         // ========================================
+        onStepLoading: (step, name, progress) =>
+            _LoadingWidget(step: step, name: name, progress: progress),
 
-        onStepLoading: (step, name, progress) => _LoadingWidget(
-          step: step,
-          name: name,
-          progress: progress,
-        ),
+        onStepFinish: (step, name, progress, controller) =>
+            _PaymentSuccessWidget(controller: controller),
 
-        onStepFinish: (step, name, progress, controller) => _PaymentSuccessWidget(
-          controller: controller,
-        ),
+        onStepError: (step, name, error, stack, controller) =>
+            _PaymentErrorWidget(
+              stepName: name,
+              error: error,
+              controller: controller,
+            ),
 
-        onStepError: (step, name, error, stack, controller) => _PaymentErrorWidget(
-          stepName: name,
-          error: error,
-          controller: controller,
-        ),
-
-        onBackPressed: (controller) => _ExitConfirmationWidget(
-          controller: controller,
-        ),
+        onBackPressed: (controller) =>
+            _ExitConfirmationWidget(controller: controller),
       ),
     );
   }
@@ -453,12 +456,18 @@ class _AuthMethodButton extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -559,11 +568,17 @@ class _VerificationMethodButton extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         subtitle,
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -806,11 +821,17 @@ class _PaymentMethodCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         subtitle,
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -836,7 +857,9 @@ class _PaymentDetailsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final method = controller.getData<PaymentDataKeys, String>(PaymentDataKeys.paymentMethod);
+    final method = controller.getData<PaymentDataKeys, String>(
+      PaymentDataKeys.paymentMethod,
+    );
 
     switch (method) {
       case 'card':
@@ -847,7 +870,10 @@ class _PaymentDetailsWidget extends StatelessWidget {
         return _PayPalDetailsWidget(controller: controller);
       case 'applepay':
       case 'googlepay':
-        return _DigitalWalletDetailsWidget(controller: controller, method: method!);
+        return _DigitalWalletDetailsWidget(
+          controller: controller,
+          method: method!,
+        );
       default:
         return _GenericPaymentDetailsWidget(controller: controller);
     }
@@ -860,7 +886,8 @@ class _CreditCardDetailsWidget extends StatefulWidget {
   const _CreditCardDetailsWidget({required this.controller});
 
   @override
-  State<_CreditCardDetailsWidget> createState() => _CreditCardDetailsWidgetState();
+  State<_CreditCardDetailsWidget> createState() =>
+      _CreditCardDetailsWidgetState();
 }
 
 class _CreditCardDetailsWidgetState extends State<_CreditCardDetailsWidget> {
@@ -890,9 +917,13 @@ class _CreditCardDetailsWidgetState extends State<_CreditCardDetailsWidget> {
                     labelText: 'Cardholder Name',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Required' : null,
                   onChanged: (value) {
-                    widget.controller.setData(PaymentDataKeys.cardholderName, value);
+                    widget.controller.setData(
+                      PaymentDataKeys.cardholderName,
+                      value,
+                    );
                     _checkFormValidity();
                   },
                 ),
@@ -903,9 +934,13 @@ class _CreditCardDetailsWidgetState extends State<_CreditCardDetailsWidget> {
                     hintText: '1234 5678 9012 3456',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Required' : null,
                   onChanged: (value) {
-                    widget.controller.setData(PaymentDataKeys.cardNumber, value);
+                    widget.controller.setData(
+                      PaymentDataKeys.cardNumber,
+                      value,
+                    );
                     _checkFormValidity();
                   },
                 ),
@@ -919,9 +954,13 @@ class _CreditCardDetailsWidgetState extends State<_CreditCardDetailsWidget> {
                           hintText: '12/25',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Required' : null,
                         onChanged: (value) {
-                          widget.controller.setData(PaymentDataKeys.expiryDate, value);
+                          widget.controller.setData(
+                            PaymentDataKeys.expiryDate,
+                            value,
+                          );
                           _checkFormValidity();
                         },
                       ),
@@ -934,7 +973,8 @@ class _CreditCardDetailsWidgetState extends State<_CreditCardDetailsWidget> {
                           hintText: '123',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Required' : null,
                         onChanged: (value) {
                           widget.controller.setData(PaymentDataKeys.cvv, value);
                           _checkFormValidity();
@@ -947,7 +987,9 @@ class _CreditCardDetailsWidgetState extends State<_CreditCardDetailsWidget> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _canContinue ? () => widget.controller.continueFlow() : null,
+                    onPressed: _canContinue
+                        ? () => widget.controller.continueFlow()
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1009,7 +1051,8 @@ class _BankDetailsWidgetState extends State<_BankDetailsWidget> {
                     labelText: 'Bank Name',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Required' : null,
                   onChanged: (value) {
                     widget.controller.setData(PaymentDataKeys.bankName, value);
                     _checkFormValidity();
@@ -1022,9 +1065,13 @@ class _BankDetailsWidgetState extends State<_BankDetailsWidget> {
                     hintText: '1234567890',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Required' : null,
                   onChanged: (value) {
-                    widget.controller.setData(PaymentDataKeys.accountNumber, value);
+                    widget.controller.setData(
+                      PaymentDataKeys.accountNumber,
+                      value,
+                    );
                     _checkFormValidity();
                   },
                 ),
@@ -1035,9 +1082,13 @@ class _BankDetailsWidgetState extends State<_BankDetailsWidget> {
                     hintText: '987654321',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Required' : null,
                   onChanged: (value) {
-                    widget.controller.setData(PaymentDataKeys.routingNumber, value);
+                    widget.controller.setData(
+                      PaymentDataKeys.routingNumber,
+                      value,
+                    );
                     _checkFormValidity();
                   },
                 ),
@@ -1045,7 +1096,9 @@ class _BankDetailsWidgetState extends State<_BankDetailsWidget> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _canContinue ? () => widget.controller.continueFlow() : null,
+                    onPressed: _canContinue
+                        ? () => widget.controller.continueFlow()
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1256,9 +1309,15 @@ class _ReviewConfirmWidgetState extends State<_ReviewConfirmWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final amount = widget.controller.getData<PaymentDataKeys, double>(PaymentDataKeys.amount);
-    final method = widget.controller.getData<PaymentDataKeys, String>(PaymentDataKeys.paymentMethod);
-    final userEmail = widget.controller.getData<PaymentDataKeys, String>(PaymentDataKeys.userEmail);
+    final amount = widget.controller.getData<PaymentDataKeys, double>(
+      PaymentDataKeys.amount,
+    );
+    final method = widget.controller.getData<PaymentDataKeys, String>(
+      PaymentDataKeys.paymentMethod,
+    );
+    final userEmail = widget.controller.getData<PaymentDataKeys, String>(
+      PaymentDataKeys.userEmail,
+    );
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -1288,7 +1347,11 @@ class _ReviewConfirmWidgetState extends State<_ReviewConfirmWidget> {
                   _SummaryRow('Method:', _getMethodDisplayName(method)),
                   _SummaryRow('Processing Fee:', '\$2.99'),
                   const Divider(),
-                  _SummaryRow('Total:', '${((amount ?? 0) + 2.99).toStringAsFixed(2)}', isTotal: true),
+                  _SummaryRow(
+                    'Total:',
+                    ((amount ?? 0) + 2.99).toStringAsFixed(2),
+                    isTotal: true,
+                  ),
                 ],
               ),
             ),
@@ -1301,7 +1364,10 @@ class _ReviewConfirmWidgetState extends State<_ReviewConfirmWidget> {
             value: _termsAccepted,
             onChanged: (value) {
               setState(() => _termsAccepted = value ?? false);
-              widget.controller.setData(PaymentDataKeys.termsAccepted, _termsAccepted);
+              widget.controller.setData(
+                PaymentDataKeys.termsAccepted,
+                _termsAccepted,
+              );
             },
             title: const Text('I accept the Terms and Conditions'),
             controlAffinity: ListTileControlAffinity.leading,
@@ -1312,7 +1378,10 @@ class _ReviewConfirmWidgetState extends State<_ReviewConfirmWidget> {
               value: _receiptByEmail,
               onChanged: (value) {
                 setState(() => _receiptByEmail = value ?? false);
-                widget.controller.setData(PaymentDataKeys.receiptEmail, _receiptByEmail ? userEmail : null);
+                widget.controller.setData(
+                  PaymentDataKeys.receiptEmail,
+                  _receiptByEmail ? userEmail : null,
+                );
               },
               title: Text('Send receipt to $userEmail'),
               controlAffinity: ListTileControlAffinity.leading,
@@ -1323,7 +1392,9 @@ class _ReviewConfirmWidgetState extends State<_ReviewConfirmWidget> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _termsAccepted ? () => widget.controller.continueFlow() : null,
+              onPressed: _termsAccepted
+                  ? () => widget.controller.continueFlow()
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -1341,12 +1412,18 @@ class _ReviewConfirmWidgetState extends State<_ReviewConfirmWidget> {
 
   String _getMethodDisplayName(String? method) {
     switch (method) {
-      case 'card': return 'Credit/Debit Card';
-      case 'bank': return 'Bank Transfer';
-      case 'paypal': return 'PayPal';
-      case 'applepay': return 'Apple Pay';
-      case 'googlepay': return 'Google Pay';
-      default: return 'Unknown';
+      case 'card':
+        return 'Credit/Debit Card';
+      case 'bank':
+        return 'Bank Transfer';
+      case 'paypal':
+        return 'PayPal';
+      case 'applepay':
+        return 'Apple Pay';
+      case 'googlepay':
+        return 'Google Pay';
+      default:
+        return 'Unknown';
     }
   }
 }
@@ -1437,9 +1514,15 @@ class _PaymentSuccessWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final amount = controller.getData<PaymentDataKeys, double>(PaymentDataKeys.amount);
-    final method = controller.getData<PaymentDataKeys, String>(PaymentDataKeys.paymentMethod);
-    final transactionId = controller.getData<PaymentDataKeys, String>(PaymentDataKeys.transactionId);
+    final amount = controller.getData<PaymentDataKeys, double>(
+      PaymentDataKeys.amount,
+    );
+    final method = controller.getData<PaymentDataKeys, String>(
+      PaymentDataKeys.paymentMethod,
+    );
+    final transactionId = controller.getData<PaymentDataKeys, String>(
+      PaymentDataKeys.transactionId,
+    );
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -1450,7 +1533,11 @@ class _PaymentSuccessWidget extends StatelessWidget {
           const SizedBox(height: 24),
           const Text(
             'Payment Successful!',
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.green),
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -1492,12 +1579,18 @@ class _PaymentSuccessWidget extends StatelessWidget {
 
   String _getMethodDisplayName(String? method) {
     switch (method) {
-      case 'card': return 'Credit/Debit Card';
-      case 'bank': return 'Bank Transfer';
-      case 'paypal': return 'PayPal';
-      case 'applepay': return 'Apple Pay';
-      case 'googlepay': return 'Google Pay';
-      default: return 'Unknown';
+      case 'card':
+        return 'Credit/Debit Card';
+      case 'bank':
+        return 'Bank Transfer';
+      case 'paypal':
+        return 'PayPal';
+      case 'applepay':
+        return 'Apple Pay';
+      case 'googlepay':
+        return 'Google Pay';
+      default:
+        return 'Unknown';
     }
   }
 }
@@ -1524,7 +1617,11 @@ class _PaymentErrorWidget extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             'Payment Failed',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            ),
           ),
           const SizedBox(height: 16),
           Text(
@@ -1593,10 +1690,12 @@ class _ExitConfirmationWidget extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () async{
+                  onPressed: () async {
                     await controller.continueFlow(flowIndex: 2);
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                  ),
                   child: const Text('Exit'),
                 ),
               ),
