@@ -1,6 +1,6 @@
 name: sequential_flow
 description: "A Flutter library for building declarative, step-by-step flows with comprehensive state management and customizable navigation behavior."
-version: 1.1.0
+version: 1.2.0
 homepage: https://github.com/JhonaCodes/sequential_flow
 
 environment:

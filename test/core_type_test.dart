@@ -149,7 +149,18 @@ void main() {
         },
       );
 
-      await step.onStepCallback(FlowController(steps: [])); // Pass a dummy controller
+      await step.onStepCallback(
+        FlowController(
+          steps: [
+            FlowStep(
+              step: TestStepType.initialization,
+              name: 'Dummy Step',
+              progressValue: 0.0,
+              onStepCallback: (controller) async {},
+            ),
+          ],
+        ),
+      );
       expect(callbackExecuted, isTrue);
     });
 
@@ -164,7 +175,18 @@ void main() {
         },
       );
 
-      step.onStartStep!(FlowController(steps: [])); // Pass a dummy controller
+      step.onStartStep!(
+        FlowController(
+          steps: [
+            FlowStep(
+              step: TestStepType.initialization,
+              name: 'Dummy Step',
+              progressValue: 0.0,
+              onStepCallback: (controller) async {},
+            ),
+          ],
+        ),
+      );
       expect(onStartExecuted, isTrue);
     });
 

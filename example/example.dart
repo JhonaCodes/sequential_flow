@@ -1,3 +1,4 @@
+/// Complete Payment Flow Example for Sequential Flow Library
 ///
 /// This example demonstrates a realistic, production-ready payment flow using
 /// the Sequential Flow library. It showcases:
@@ -28,7 +29,6 @@
 ///   }
 /// }
 /// ```
-library;
 
 import 'package:flutter/material.dart';
 import 'package:sequential_flow/sequential_flow.dart';

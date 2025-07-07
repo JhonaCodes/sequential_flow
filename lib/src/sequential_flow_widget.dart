@@ -218,7 +218,10 @@ class SequentialFlow<T> extends StatefulWidget {
     this.onStepCancel,
     this.onBackPressed,
     this.autoStart = true,
+    this.controller,
   }) : assert(steps.length > 0, 'Steps list cannot be empty');
+
+  final FlowController<T>? controller;
 
   @override
   State<SequentialFlow<T>> createState() => SequentialFlowState<T>();
@@ -237,7 +240,7 @@ class SequentialFlowState<T> extends State<SequentialFlow<T>> {
   @override
   void initState() {
     super.initState();
-    controller = FlowController<T>(steps: widget.steps);
+    controller = widget.controller ?? FlowController<T>(steps: widget.steps);
 
     if (widget.autoStart) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

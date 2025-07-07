@@ -48,6 +48,7 @@ class FlowController<T> extends ChangeNotifier {
   bool _isWaitingConfirmation = false;
   bool _isCancelled = false;
   bool _showingBackWidget = false;
+  bool _isDisposed = false;
   T? _currentStep;
   String _currentStepName = '';
   double _currentProgress = 0.0;
@@ -234,6 +235,7 @@ class FlowController<T> extends ChangeNotifier {
 
   /// Internal method to process steps sequentially.
   Future<void> _processSteps() async {
+    if (_isDisposed) return; // Check if disposed before processing steps
     try {
       while (_currentStepIndex < steps.length) {
         final step = steps[_currentStepIndex];
@@ -254,11 +256,15 @@ class FlowController<T> extends ChangeNotifier {
 
         await _executeCurrentStep();
         _currentStepIndex++;
+        // Notify after step completion, before next step starts
+        if (_currentStepIndex < steps.length) {
+          notifyListeners();
+        }
       }
 
       _isLoading = false;
       _isCompleted = true;
-      notifyListeners();
+      notifyListeners(); // Final notification after loop
     } catch (e, stack) {
       _error = e;
       _stackTrace = stack;
@@ -272,8 +278,11 @@ class FlowController<T> extends ChangeNotifier {
 
   /// Executes the current step with small delays for UI smoothness.
   Future<void> _executeCurrentStep() async {
+    if (_isDisposed) return; // Check if disposed before executing step
     await Future.delayed(const Duration(milliseconds: 100));
+    if (_isDisposed) return; // Check again after delay
     await steps[_currentStepIndex].onStepCallback(this);
+    if (_isDisposed) return; // Check again after callback
     await Future.delayed(const Duration(milliseconds: 200));
   }
 
@@ -287,7 +296,7 @@ class FlowController<T> extends ChangeNotifier {
   ///
   /// [flowIndex] must be a valid index within the steps list if provided.
   Future<void> continueFlow({int? flowIndex}) async {
-    if (!_isWaitingConfirmation) return;
+    if (!_isWaitingConfirmation || _isDisposed) return;
 
     _stepHistory.add(_currentStepIndex);
 
@@ -376,6 +385,7 @@ class FlowController<T> extends ChangeNotifier {
 
   /// Navigates to a specific step by index.
   Future<void> _goToStep(int index) async {
+    if (_isDisposed) return; // Check if disposed before navigating
     if (index >= 0 && index < steps.length) {
       _currentStepIndex = index;
       _isWaitingConfirmation = false;
@@ -383,6 +393,12 @@ class FlowController<T> extends ChangeNotifier {
       notifyListeners();
       await _processSteps();
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _isDisposed = true;
   }
 
   /// Cancels the flow execution.
@@ -403,9 +419,9 @@ class FlowController<T> extends ChangeNotifier {
   ///
   /// This is equivalent to calling [start()] when the flow is in an error state.
   /// If the flow is not in an error state, this method does nothing.
-  void retry() {
+  Future<void> retry() async {
     if (_hasError) {
-      start();
+      await start();
     }
   }
 
